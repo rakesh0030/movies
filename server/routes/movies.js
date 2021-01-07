@@ -4,12 +4,12 @@ const router = express.Router();
 
 const moviesController = require('../controllers/movies');
 
-const requireLogin = require('../middlewares/requireLogin');
+const {requireLogin,isLoggedIn} = require('../middlewares/requireLogin');
 
 router.post('/',moviesController.createMovie);
 
 //TODO : Check and change the below route to get/post and also their api design as well
-router.post('/loadAll',moviesController.loadAllMovies);
+router.post('/loadAll',isLoggedIn,moviesController.loadAllMovies);
 
 router.get('/search/:searchText',moviesController.searchSuggestion);
 

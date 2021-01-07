@@ -3,15 +3,19 @@ import styles from './Dropdown.module.css';
 function Dropdown(props) {
   //TODO : make no option selected by default
   let options = null;
-  if(props.sortableFields && props.sortableFields.length > 0){
-    options = props.sortableFields.map((s)=>{
-      return <option>{s}</option>
+  if (props.sortableFields && props.sortableFields.length > 0) {
+    options = props.sortableFields.map((s) => {
+      return <option value={s} onClick={() => props.onOptionsClicked(s)}>{s}</option>
     })
   }
   return (
-    <select className={styles.Dropdown} name="sort" id="sort">
-      {options}
-    </select>
+    <div class="input-field col s12">
+      <select multiple className={`${styles.Dropdown}`}>
+        <option value="" disabled selected>Choose your option</option>
+        {options}
+      </select>
+      <label>Sort Select</label>
+    </div>
   );
 }
 

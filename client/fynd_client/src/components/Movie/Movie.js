@@ -5,7 +5,7 @@ function Movie(props) {
   let MovieArr = null;
   if(props.MovieList && props.MovieList.length > 0){
     MovieArr = props.MovieList.map((e)=>{
-      return <MovieItem movie={e}/>
+      return <MovieItem movie={e} onClickHandler={props.onDeleteSpanClickHandler}/>
     })
   }
 

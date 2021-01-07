@@ -27,7 +27,7 @@ exports.signUp = async (req, res, next) => {
         status: 403
       };
     //Hasing the password using bcrypt
-    bcrypt.hash(password, 12)
+    bcrypt.hash(password, 8)
       .then((hashedPassword) => {
         return db.collection('Users').insertOne({
           name,
@@ -58,24 +58,24 @@ exports.signUp = async (req, res, next) => {
 
 exports.signIn = (req,res,next) => {
   try{
-    const {email , password} = req.body;
-    if (!email || !password)
+    const {name , password} = req.body;
+    if (!name || !password)
       throw {
-        message: "Require name,email and password for signup.",
+        message: "Require name and password for login.",
         status: 422
       };
     const db = getDb();
-    let userDetails;
-    db.collection('Users').findOne({ email: email })
-      .then((userInfo)=>{
-        if (!userInfo)
+    let adminDetails;
+    db.collection('admins').findOne({ name: name })
+      .then((adminInfo)=>{
+        if (!adminInfo)
           throw {
-            message: "No account for this email",
+            message: "No account for this name",
             status: 403
           };
-        console.log("user Info",userInfo);
-        userDetails = userInfo;
-        const hashedPassword = userInfo.password;
+        console.log("admin Info",adminInfo);
+        adminDetails = adminInfo;
+        const hashedPassword = adminInfo.password;
         return bcrypt.compare(password , hashedPassword)
         })
         .then((isMatch)=>{
@@ -84,16 +84,15 @@ exports.signIn = (req,res,next) => {
             const dirName = path.dirname(__dirname);
             //const privateKey = fs.readFileSync(dirName + '/utils/private.pem','utf-8');
             const privateKey = constants.privateKey;
-            const token = jwt.sign({_id : userDetails._id},privateKey);
-            const userDetailsToBeSend = {
-              _id : userDetails._id,
-              name : userDetails.name,
-              email : userDetails.email
+            const token = jwt.sign({_id : adminDetails._id},privateKey);
+            const adminDetailsToBeSend = {
+              _id : adminDetails._id,
+              name : adminDetails.name
             }
             return res.status(200).json(
               {
                 token,
-                userDetails : userDetailsToBeSend
+                adminDetails : adminDetailsToBeSend
               }
             );
           }
@@ -105,7 +104,7 @@ exports.signIn = (req,res,next) => {
           }
         })
         .catch((err)=>{
-          console.log("Error in checking for email existence.") 
+          console.log("Error in checking for name existence.") 
           console.log(err);
           res.status(err.message).send(err.status);
         }) 

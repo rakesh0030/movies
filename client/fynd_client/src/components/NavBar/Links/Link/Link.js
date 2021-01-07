@@ -2,7 +2,8 @@ import styles from './Link.module.css';
 
 function Link(props) {
   return (
-    <li className={styles.Link}>
+    //TODO : Currently only single link directly attaching a onCLick may change later.
+    <li className={styles.Link} onClick={()=>props.adminLinkBtnClickhandler()}>
       {props.linkText}
     </li>
   );

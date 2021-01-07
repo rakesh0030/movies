@@ -5,7 +5,7 @@ function Button(props) {
     <div className={styles.Button}>
       <button class="waves-effect waves-light btn"
       onClick={()=>props.onClickHandler()}
-      >hadbhb</button>
+      >{props.btnText}</button>
     </div>
   );
 }

@@ -37,4 +37,11 @@ const requireLogin = (req,res,next) => {
 }
 }
 
-module.exports = requireLogin;
+const isLoggedIn = (req,res,next) =>{
+  return typeof req.headers.authorization !== "undefined" ? requireLogin(req,res,next) : next();
+}
+
+module.exports = {
+  requireLogin,
+ isLoggedIn 
+};

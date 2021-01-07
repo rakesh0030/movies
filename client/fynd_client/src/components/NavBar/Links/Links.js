@@ -5,7 +5,7 @@ function Links(props) {
   let LinkItems = null;
   console.log(LinkItems,props.Links);
   LinkItems = props.Links.map((linkText)=>{
-    return <Link linkText={linkText}/>
+    return <Link linkText={linkText} {...props}/>
   })
   console.log(LinkItems,props.Links);
   
@@ -14,9 +14,6 @@ function Links(props) {
   return (
       <ul className={styles.Links}>
         {LinkItems}
-        <Link linkText="DUMMY"/> 
-        <Link linkText="DUMMY"/> 
-      {/* Todo : remove above line */}
       </ul>
       
   );

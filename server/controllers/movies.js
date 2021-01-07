@@ -63,13 +63,15 @@ exports.loadAllMovies = (req,res,next) => {
     searchText(Text from serach bar), //TODO: check against both movie name and director name
     genres : [](all genres chosen) (if length 0 then dont apply this filter)
     sort : (field name to sort upon)(If empty don't add to aggragtion)
-
+    size : (No. of movies to be shown at max)
+    from : (skip these numebr of movies)
     //TODO : Add pagination wala fields as well.
   }
 
   */
   const body = req.body;
   let aggregationPipeline = [];
+  const adminID = req.adminID ? req.adminID : null;
 
   //TODO : Check for search and sort filter
 
@@ -99,13 +101,37 @@ exports.loadAllMovies = (req,res,next) => {
     aggregationPipeline.push({ $sort: { [sortField] : "1" } });
   }
 
+  let size = body.size ? body.size : 10; //By default page size is 10
+  let from = body.from ? body.from : 0;//By default from-offset is 0
+
+  aggregationPipeline.push({ "$limit": size + from });
+  aggregationPipeline.push({ "$skip": from })
+
   console.log(aggregationPipeline);
+
+  //TODO : Currently not making next an previous disabled but will later do.
 
   //TODO : Check below functionality and add cursor if required
   try {
     const db = getDb();
     db.collection('movies').aggregate(aggregationPipeline).toArray()
       .then((r) => {
+        if(adminID){
+          //Compare admin ID with movie.admin._id
+          r = r.map((e)=>{
+            e.isModificationAllowed = e.admin._id == adminID;
+            delete e.admin;
+            return e;
+          })
+        }
+        else{
+          //TODO: Make a seperate function for this removal of admin
+          r = r.map((e)=>{
+            delete e.admin;
+            e.isModificationAllowed = false;
+            return e;
+          })
+        }
         res.status(200).send(r);
       })
       .catch((err) => {

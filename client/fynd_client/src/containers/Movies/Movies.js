@@ -3,6 +3,7 @@ import axios from 'axios';
 import Layout from '../../components/Layout/Layout';
 import './Movies.module.css';
 import Tags from '../../components/SideBar/Tags/Tags';
+import M from 'materialize-css';
 
 class Movies extends Component {
   state = {
@@ -17,12 +18,157 @@ class Movies extends Component {
     searchCriteria : {
       sort : null,
       genres : [],
-      searchText : ""
+      searchText : "",
+      //TODO : Currently not making next an previous disabled but will later do.
+      size : 10,
+      from : 0
     },
     //TODO : now adding blank in beginning just to make sure that none is chosen by default.
     //TODO: Later define a api for getting sortable fields.
     //TODO: Also add later label and other tags for select.
-    sortableFields : ["", "name", "director", "99popularity"]
+    sortableFields : ["", "name", "director", "99popularity"],
+    /*
+    admin : {
+      _id, name (in state always)
+      name,password(only when sign in form is shown)
+    }
+    */
+    admin : {
+      _id : "",
+      name : "",
+      password : ""
+    },
+    //TODO : Might change later this so that we don't require below field but currently
+    //using it to identify on which screen we are
+    isLoginScreenOpen : false,
+    isMovieCreationScreenOpen : false,
+    isGenreCreationScreenOpen : false,
+    /*
+    MovieEditCreate : {
+      _id : null(if post request, otherwise for put have some value),
+      name : "",
+      director : "",
+      99popularity : (float)(Make a range selector from 0 to 10)
+      imdb : (float)(Make a range selector from 0 to 10)
+      genre : [](Make a multiselect dropdown)
+    }
+    */
+    MovieEditCreate : {
+      _id : null,
+      name : "",
+      director : "",
+      "99popularity" : 0,
+      //TODO : this is imdb_score not imdb change everywhere.
+      imdb_score : 0,
+      genre : ["Drama"] //TODO : Remove this dummy genre,created because we need atleast one genre
+    },
+    genreCreate : ""
+  }
+
+  setGenreName = (e)=>{
+    this.setState({
+      genreCreate : e
+    })
+  }
+
+
+  setMovieName = (e)=>{
+    this.setState((oldState)=>{
+      return {
+        MovieEditCreate : {
+          ...oldState.MovieEditCreate,
+          name : e
+        }
+      }
+    })
+  }
+
+  setDirectorName = (e)=>{
+    this.setState((oldState)=>{
+      return {
+        MovieEditCreate : {
+          ...oldState.MovieEditCreate,
+          director : e
+        }
+      }
+    })
+  }
+
+  setIMDBScore = (e)=>{
+    this.setState((oldState)=>{
+      return {
+        MovieEditCreate : {
+          ...oldState.MovieEditCreate,
+          imdb_score : e
+        }
+      }
+    })
+  }
+
+  set99popularity = (e)=>{
+    this.setState((oldState)=>{
+      return {
+        MovieEditCreate : {
+          ...oldState.MovieEditCreate,
+          "99popularity" : e
+        }
+      }
+    })
+  }
+
+  createMovie = () => {
+    let options = {
+      headers: {
+        'Authorization': localStorage.getItem("jwt")
+      }
+    }
+    let requestObj = { ...this.state.MovieEditCreate }
+    return axios.post("/movies", requestObj, options)
+      .then((r) => {
+        M.toast({ html: `movie created successfully.`, classes: "#2e7d32 green darken-3" });
+      })
+      .catch((err) => {
+        console.log("Error is ", err);
+        M.toast({ html: `Error in creating movie ${err}`, classes: "#ff1744 red accent-3" })
+      })
+  }
+
+  createGenre = () => {
+    let options = {
+      headers: {
+        'Authorization': localStorage.getItem("jwt")
+      }
+    }
+    //TODO : Check wether we are making a duplicate genre if yes then do not make
+    //TODO : On client side check using Tag comparison
+    //TODO : On server side also check
+    let requestObj = {genre : this.state.genreCreate}
+    return axios.post("/genres", requestObj, options)
+      .then((r) => {
+        M.toast({ html: `Genre created successfully.`, classes: "#2e7d32 green darken-3" });
+      })
+      .catch((err) => {
+        console.log("Error is ", err);
+        M.toast({ html: `Error in creating Genre ${err}`, classes: "#ff1744 red accent-3" })
+      })
+  }
+
+
+  //TODO : Rename the below method correctly
+  onAddMovieGenreClicked = ()=>{
+    this.setState({
+      isMovieCreationScreenOpen : true
+    },()=>{
+      var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+    })
+    
+  }
+
+  onAddGenreGenreClicked = ()=>{
+    this.setState({
+      isGenreCreationScreenOpen : true
+    })
   }
 
   onSearchInputChange = (e)=>{
@@ -87,6 +233,9 @@ class Movies extends Component {
     let postObj = {
       ...this.state.searchCriteria,
       searchText : this.state.suggestion.suggestionText
+      //TODO : Change the from here to 0 later since it is required 
+      //because of not made then this will cause error.
+      //TODO : Add JWT here also.
     }
     axios.post('/movies/loadAll',postObj)
       .then((r)=>{
@@ -111,6 +260,7 @@ class Movies extends Component {
         return {
           searchCriteria: {
             ...oldState.searchCriteria,
+            from : 0,
             genres
           }
         };
@@ -154,6 +304,132 @@ class Movies extends Component {
     }
   }
 
+  onPaginationBtnClicked = (value) =>{
+    if(value == "next"){
+      //TODO : Later add condition for disable and enable next and precious btn.
+      this.setState((oldState) => {
+        return {
+          searchCriteria: {
+            ...oldState.searchCriteria,
+            from : oldState.searchCriteria.from + oldState.searchCriteria.size
+          }
+        };
+      },
+        this.onSearchBtnClicked
+      )
+    }
+    //Else is previous
+    else{
+      //TODO : Later add condition for disable and enable next and precious btn.
+      this.setState((oldState) => {
+        return {
+          searchCriteria: {
+            ...oldState.searchCriteria,
+            from : oldState.searchCriteria.from - oldState.searchCriteria.size
+          }
+        };
+      },
+        this.onSearchBtnClicked
+      )
+    }
+  }
+
+  setname = (value)=>{
+    this.setState((oldState)=>{
+      return {
+        admin :{
+          ...oldState.admin,
+          name : value
+        }
+      }
+    })
+  }
+
+  setPassword = (value)=>{
+    this.setState((oldState)=>{
+      return {
+        admin :{
+          ...oldState.admin,
+          password : value
+        }
+      }
+    })
+  }
+
+  loginReq = ()=>{
+    console.log("Login Request made");
+    const postData = {
+      name : this.state.admin.name,password : this.state.admin.password
+    };
+    console.log("Post Data for login",postData);
+    axios.post('/auth/login',postData)
+      .then((res)=>{
+        M.toast({html: 'Login successful', classes:"#2e7d32 green darken-3"})
+        // alert('Login successful');
+        console.log('Response is',res);
+        console.log(res.data.token);
+        localStorage.setItem("jwt",res.data.token);
+        localStorage.setItem("admin",JSON.stringify(res.data.adminDetails));
+        
+      })
+      .catch((err)=>{
+        M.toast({html: `Error in login ${err}`, classes:"#ff1744 red accent-3"})
+        //alert('Error in login ',err);
+      })
+  }
+
+  //TODO : May change this to something else(very less chances) when react routing is added
+  adminLinkBtnClickhandler = ()=>{
+    console.log("admin btn clicked");
+    this.setState({
+      isLoginScreenOpen : true
+    })
+  } 
+
+  onDeleteSpanClickHandler = (movieID) =>{
+    const jwt = localStorage.getItem("jwt");
+    if(!jwt){
+      M.toast({html : 'Please login as admin first.', classes:"#ff1744 red accent-3"});
+      return;
+    }
+    let options = {
+      headers: {
+        'Authorization':  jwt
+      }
+    }
+    //TODO : Check on server side the person deleting is same as created the movie.
+    axios.delete(`/movies/${movieID}`,options)
+      .then((r)=>{
+        console.log(r)
+        //TODO : Later change this handling of movies to something else for now handling here itself
+        this.setState((oldState) => {
+          let idx;
+          let MovieList = oldState.MovieList;
+          MovieList.forEach((movie, movieIDx) => {
+            if (movieID != movie._id) {
+              idx = movieIDx;
+            }
+          });
+          //TODO : Later look into it what is going wrong here and check if something 
+          //can be done or is it ok.
+          //When deleting we are removing the element from array but do we have to or should we directly 
+          //call for a page refresh.
+          console.log("idx is", idx);
+          MovieList.splice(idx, 1);
+          M.toast({ html: "movie Deleted successfully", classes: "#2e7d32 green darken-3" });
+          return {
+            MovieList
+          }
+        })
+      })
+      .catch((e)=>{
+        console.log(e);
+        M.toast({html : 'Unable to delete post.', classes:"#ff1744 red accent-3"});
+      })
+  }
+
+  //TODO: Provide logout feature for Admin.
+
   componentDidMount(){
     axios.get('/genres')
       .then((r)=>{
@@ -165,8 +441,20 @@ class Movies extends Component {
         console.log("error is",e);
         alert("Error in getting Tags",e);
       })
-
-    axios.post('/movies/loadAll')
+    const admin = JSON.parse(localStorage.getItem("admin"));
+    const jwt = localStorage.getItem("jwt");
+    console.log("admin is",admin);
+    console.log("jwt is",jwt);
+    let postObj = {...this.state.searchCriteria};
+    let options = null;
+    if(admin){
+      options = {
+        headers: {
+          'Authorization':  jwt
+        }
+      }
+    }
+    axios.post('/movies/loadAll',postObj,options)
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
@@ -180,6 +468,11 @@ class Movies extends Component {
         console.log("error is",e);
         alert("Error in getting movie list",e);
       })
+
+    document.addEventListener('DOMContentLoaded', function () {
+      var elems = document.querySelectorAll('select');
+      var instances = M.FormSelect.init(elems);
+    });
   }
 
 
@@ -201,6 +494,26 @@ class Movies extends Component {
         sortableFields = {this.state.sortableFields}
         onSearchBtnClicked = {this.onSearchBtnClicked}
         onSortOptionClicked = {this.onSortOptionClicked}
+        onPaginationBtnClicked = {this.onPaginationBtnClicked}
+        setname = {this.setname}
+        setPassword = {this.setPassword}
+        loginReq = {this.loginReq}
+        admin = {this.state.admin}
+        isLoginScreenOpen = {this.state.isLoginScreenOpen}
+        isGenreCreationScreenOpen = {this.state.isGenreCreationScreenOpen}
+        isMovieCreationScreenOpen = {this.state.isMovieCreationScreenOpen}
+        adminLinkBtnClickhandler = {this.adminLinkBtnClickhandler}
+        onDeleteSpanClickHandler = {this.onDeleteSpanClickHandler}
+        onAddMovieGenreClicked = {this.onAddMovieGenreClicked}
+        onAddGenreGenreClicked = {this.onAddGenreGenreClicked}
+        MovieEditCreate = {this.state.MovieEditCreate}
+        setMovieName = {this.setMovieName}
+        setDirectorName = {this.setDirectorName}
+        setIMDBScore = {this.setIMDBScore}
+        set99popularity = {this.set99popularity}
+        createMovie = {this.createMovie}
+        setGenreName = {this.setGenreName}
+        createGenre = {this.createGenre}
         />
       </div>
     );
