@@ -1,0 +1,7 @@
+.Search{
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin : 10px;
+  flex-wrap: wrap;
+}

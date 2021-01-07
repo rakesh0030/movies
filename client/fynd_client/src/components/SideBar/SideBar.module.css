@@ -1,0 +1,14 @@
+.SideBar{
+  margin : 200px 50px;
+  height : 500px !important;
+}
+
+.Tags{
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.Tag{
+  margin : 5px;
+  background-color: gray;
+}

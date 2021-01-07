@@ -1,0 +1,8 @@
+.Logo{
+  margin : 10px 20px;
+}
+
+.Logo img{
+  height: 60px;
+  object-fit: cover;
+}

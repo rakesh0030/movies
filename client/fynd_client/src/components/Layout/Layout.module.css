@@ -1,0 +1,5 @@
+.MainContent{
+  display : flex;
+  margin-top : 200px;
+  justify-content: space-around;
+}
