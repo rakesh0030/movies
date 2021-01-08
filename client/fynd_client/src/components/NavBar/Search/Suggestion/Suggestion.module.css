@@ -1,4 +1,14 @@
 .Suggestion{
   position: relative;
   z-index : 9999;
+  background-color: #e4e4e4;
 }
+
+.SuggestionList{
+  border-bottom: solid gray 0.1px;
+  padding : 5px;
+  /* font-family: "Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif; */
+  cursor: pointer;
+   
+}
+

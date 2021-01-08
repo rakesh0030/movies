@@ -1,0 +1,14 @@
+.Tags{
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.DeleteEdit{
+  display: inline;
+  float: right;
+}
+
+.Icon{
+  margin-right: 10px;
+  cursor: pointer; 
+}

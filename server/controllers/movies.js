@@ -87,7 +87,7 @@ exports.createMovie = (req,res,next) => {
       }
     }
     
-    
+    console.log(adminID);
 
     const db = getDb();
     db.collection('admins').findOne({_id : mongodb.ObjectId(adminID)})
@@ -171,6 +171,9 @@ exports.loadAllMovies = (req,res,next) => {
 
 
   let aggregationPipeline = [];
+
+  console.log("Admin ID",req.adminID);
+
   const adminID = req.adminID ? req.adminID : null;
 
   //TODO : Check for search and sort filter
@@ -246,6 +249,7 @@ exports.loadAllMovies = (req,res,next) => {
         if(adminID){
           //Compare admin ID with movie.admin._id
           r = r.map((e)=>{
+            console.log("e.admin._id",e.admin._id);
             e.isModificationAllowed = e.admin._id == adminID;
             delete e.admin;
             return e;

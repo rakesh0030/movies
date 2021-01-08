@@ -29,9 +29,13 @@ function Login(props) {
           </div>
         </div>
         <div className="card-action center">
-          <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
+          <button className={`${styles.Button} btn waves-effect waves-light #455a64 blue-grey darken-2`} type="submit" name="action"
           onClick={()=>props.loginReq()}
           >Log In
+          </button>
+          <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
+          onClick={()=>props.OnCancelLogin()}
+          >Cancel
           </button>
         </div>
       </div>

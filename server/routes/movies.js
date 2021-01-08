@@ -6,7 +6,7 @@ const moviesController = require('../controllers/movies');
 
 const {requireLogin,isLoggedIn} = require('../middlewares/requireLogin');
 
-router.post('/',moviesController.createMovie);
+router.post('/',requireLogin,moviesController.createMovie);
 
 //TODO : Check and change the below route to get/post and also their api design as well
 // router.post('/loadAll',isLoggedIn,moviesController.loadAllMovies);

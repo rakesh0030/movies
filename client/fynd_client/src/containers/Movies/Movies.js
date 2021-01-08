@@ -26,7 +26,10 @@ class Movies extends Component {
     //TODO : now adding blank in beginning just to make sure that none is chosen by default.
     //TODO: Later define a api for getting sortable fields.
     //TODO: Also add later label and other tags for select.
-    sortableFields : ["", "name", "director", "99popularity"],
+
+    //TODO : add sortable field with a description which will be displayedd rather the
+    //field name. 
+    sortableFields : ["name", "director", "99popularity","imdb_score"],
     /*
     admin : {
       _id, name (in state always)
@@ -71,6 +74,24 @@ class Movies extends Component {
     })
   }
 
+  OnCancelAddMovie = (e) =>{
+    this.setState({
+      isMovieCreationScreenOpen : false
+    })
+  }
+
+  OnCancelAddGenre = (e) =>{
+    this.setState({
+      isGenreCreationScreenOpen : false
+    })
+  }
+
+  OnCancelLogin = ()=>{
+    this.setState({
+      isLoginScreenOpen : false
+    })
+  }
+
 
   setMovieName = (e)=>{
     this.setState((oldState)=>{
@@ -78,6 +99,36 @@ class Movies extends Component {
         MovieEditCreate : {
           ...oldState.MovieEditCreate,
           name : e
+        }
+      }
+    })
+  }
+
+  onMultiGenreClicked = () =>{
+    // console.log("onMultiGenreClicked value is",e);
+    // this.setState((oldState)=>{
+    //   return {
+    //     MovieEditCreate : {
+    //       ...oldState.MovieEditCreate,
+    //       genre : [...oldState.MovieEditCreate.genre,e]
+    //     }
+    //   }
+    // })
+
+    //TODO : Replace all var to let
+    //TODO : Make this a method and use here.
+    var elem = document.getElementsByClassName("MultiSelectGenre");
+    console.log("elem",elem);
+    var instance = M.FormSelect.getInstance(elem[0]);
+    console.log("instance",instance);
+    var e = instance.getSelectedValues();
+    console.log("e",e);
+    console.log("onMultiGenreClicked value is",e);
+    this.setState((oldState)=>{
+      return {
+        MovieEditCreate : {
+          ...oldState.MovieEditCreate,
+          genre : e
         }
       }
     })
@@ -99,7 +150,7 @@ class Movies extends Component {
       return {
         MovieEditCreate : {
           ...oldState.MovieEditCreate,
-          imdb_score : e
+          imdb_score : parseInt(e)
         }
       }
     })
@@ -110,7 +161,7 @@ class Movies extends Component {
       return {
         MovieEditCreate : {
           ...oldState.MovieEditCreate,
-          "99popularity" : e
+          "99popularity" : parseInt(e)
         }
       }
     })
@@ -122,7 +173,19 @@ class Movies extends Component {
         'Authorization': localStorage.getItem("jwt")
       }
     }
-    let requestObj = { ...this.state.MovieEditCreate }
+    let requestObj = { movie : {...this.state.MovieEditCreate} }
+    //TODO : Later change how to make sure we are editing or 
+    //creating a new movie.
+    if(this.state.MovieEditCreate._id){
+      return axios.put("/movies", requestObj, options)
+      .then((r) => {
+        M.toast({ html: `movie created successfully.`, classes: "#2e7d32 green darken-3" });
+      })
+      .catch((err) => {
+        console.log("Error is ", err);
+        M.toast({ html: `Error in creating movie ${err}`, classes: "#ff1744 red accent-3" })
+      })
+    }
     return axios.post("/movies", requestObj, options)
       .then((r) => {
         M.toast({ html: `movie created successfully.`, classes: "#2e7d32 green darken-3" });
@@ -197,7 +260,7 @@ class Movies extends Component {
             //TODO : Check how to show in suggestion both name and dir name
             //TODO: Currently taking only name.
             return `${m.name}`;
-            // return `${m.name} dir : ${m.director}`;
+            // return m;
           })
           this.setState({
             suggestion: {
@@ -206,24 +269,29 @@ class Movies extends Component {
               suggestions: suggArr
             }
           }, () => {
-            var Autoelems = document.querySelectorAll('.autocomplete');
             let suggestionArray = this.state.suggestion.suggestions;
-            let suggestionObj = suggestionArray.map((e) => {
+            let suggestionObj = suggestionArray.map((e,idx) => {
               return {
                 [e]: null
+                // id : idx,
+                // text : e
               }
             })
-      console.log("suggestionObject is",suggestionObj)
-      var AutoInstances = M.Autocomplete.init(Autoelems, {
-        data : suggestionObj
-      });
-      console.log("Auto elems is",Autoelems);
-      console.log("Auto instances is ",AutoInstances);
-      console.log("Available method is",M.Autocomplete);
-      var AutoInstanceObj = M.Autocomplete.getInstance(Autoelems[0]);
-      AutoInstanceObj.open();
-      //Check what is getting wrong
-      console.log("Auto complete is",AutoInstanceObj);
+            console.log("suggestionObject is", suggestionObj)
+            // var AutoInstanceObj = M.Autocomplete.getInstance(document.getElementById('autocomplete-input'));
+            // console.log("Auto complete is", AutoInstanceObj);
+            // var instances = M.Autocomplete.init(AutoInstanceObj, {
+            //   minLength : 1
+            // });
+            // AutoInstanceObj.updateData(suggestionObj);
+            // // console.log("Auto elems is", Autoelems);
+            // // console.log("Auto instances is ", AutoInstances);
+            // console.log("Available method is", M.Autocomplete);
+            // console.log(AutoInstanceObj.isOpen)
+            // console.log(AutoInstanceObj.open());
+            // console.log(AutoInstanceObj.isOpen)
+            // //Check what is getting wrong
+            
           })
         })
         .catch((e)=>{
@@ -266,7 +334,15 @@ class Movies extends Component {
     let searchCriteria = this.state.searchCriteria;
     let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
     console.log(queryString);
-    axios.get(`/movies?${queryString}`)
+    const jwt = localStorage.getItem("jwt");
+    let options = null;
+    if(jwt){
+    options = {
+      headers: {
+        'Authorization':  jwt
+      }
+    }}
+    axios.get(`/movies?${queryString}`,options)
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
@@ -458,6 +534,19 @@ class Movies extends Component {
       })
   }
 
+  onEditSpanClickHandler = (movie)=>{
+    //TODO : Replace all var to let
+    //TODO : Make this a method and use here.
+    console.log("Movie to be edited",movie);
+    this.setState({
+      MovieEditCreate : movie,
+      isMovieCreationScreenOpen : true
+    },()=>{
+      var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+    })
+  }
+
   //TODO: Provide logout feature for Admin.
 
   componentDidMount(){
@@ -471,23 +560,18 @@ class Movies extends Component {
         console.log("error is",e);
         alert("Error in getting Tags",e);
       })
-    const admin = JSON.parse(localStorage.getItem("admin"));
-    const jwt = localStorage.getItem("jwt");
-    console.log("admin is",admin);
-    console.log("jwt is",jwt);
-    let postObj = {...this.state.searchCriteria};
-    let options = null;
-    if(admin){
-      options = {
-        headers: {
-          'Authorization':  jwt
-        }
-      }
-    }
     let searchCriteria = this.state.searchCriteria;
     let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
     console.log(queryString);
-    axios.get(`/movies?${queryString}`)
+    const jwt = localStorage.getItem("jwt");
+    let options = null;
+    if(jwt){
+    options = {
+      headers: {
+        'Authorization':  jwt
+      }
+    }}
+    axios.get(`/movies?${queryString}`,options)
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
@@ -513,12 +597,18 @@ class Movies extends Component {
         }
       })
       console.log("suggestionObject is",suggestionObj)
-      var AutoInstances = M.Autocomplete.init(Autoelems, {
-        data : suggestionObj
-      });
+      var AutoInstances = M.Autocomplete.init(Autoelems, 
+        {minLength: 1});
     });
   }
 
+  componentDidUpdate = ()=>{
+    var elems = document.querySelectorAll('select');
+    var instances = M.FormSelect.init(elems);
+  }
+
+
+  //TODO : When ever we come from some other screen sort is not shown.
 
 
 
@@ -558,6 +648,11 @@ class Movies extends Component {
         createMovie = {this.createMovie}
         setGenreName = {this.setGenreName}
         createGenre = {this.createGenre}
+        onMultiGenreClicked = {this.onMultiGenreClicked}
+        onEditSpanClickHandler = {this.onEditSpanClickHandler}
+        OnCancelAddMovie = {this.OnCancelAddMovie}
+        OnCancelAddGenre = {this.OnCancelAddGenre}
+        OnCancelLogin = {this.OnCancelLogin}
         />
       </div>
     );

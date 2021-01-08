@@ -38,6 +38,7 @@ const requireLogin = (req,res,next) => {
 }
 
 const isLoggedIn = (req,res,next) =>{
+  console.log("Request Auth header",req.headers.authorization);
   return typeof req.headers.authorization !== "undefined" ? requireLogin(req,res,next) : next();
 }
 

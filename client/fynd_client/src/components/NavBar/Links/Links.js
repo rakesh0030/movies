@@ -5,7 +5,8 @@ function Links(props) {
   let LinkItems = null;
   console.log(LinkItems,props.Links);
   LinkItems = props.Links.map((linkText)=>{
-    return <Link linkText={linkText} {...props}/>
+    return <Link linkText={linkText} {...props}
+    />
   })
   console.log(LinkItems,props.Links);
   

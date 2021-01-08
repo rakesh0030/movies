@@ -7,7 +7,7 @@ function Search(props) {
 
   
 
-
+  //TODO : On change of text in input the size changes make it contant somehow.
   return (
     <>
     <div className={styles.Search}>
@@ -17,24 +17,29 @@ function Search(props) {
       /> */}
       
         <div class="row">
-        <div class="col s12">
-          <div class="row">
-            <div class="input-field col s12">
-              <i class="material-icons prefix">search</i>
-              <input type="text" id="autocomplete-input" class="autocomplete"
-              onChange={(e)=>props.onSearchInputChange(e)}
-              value={props.suggestion.suggestionText}
-              />
-                <label for="autocomplete-input">Enter Search Term</label>
-            </div>
-            </div>
+          <div class="col s12">
+              <div class="input-field col s9">
+                <i class="material-icons prefix">search</i>
+                <input type="text" id="autocomplete-input" className={`${styles.Autocomplete}` }
+                onChange={(e)=>props.onSearchInputChange(e)}
+                value={props.suggestion.suggestionText}
+                />
+                <label for="autocomplete-input">Enter Movie/Director Name</label>
+              </div>
+              <div className="col s3">
+                <Button
+                  btnText="Search"
+                  onClickHandler={props.onSearchBtnClicked}
+                />
+              </div>
           </div>
+          <div className="col s1">
+          </div>
+          <div className="col s9">
+          <Suggestion {...props}/>
+          </div>
+          
         </div>
-        
-      <Button 
-      onClickHandler={props.onSearchBtnClicked}
-      />
-      <Suggestion {...props}/>
     </div>
     
     </>

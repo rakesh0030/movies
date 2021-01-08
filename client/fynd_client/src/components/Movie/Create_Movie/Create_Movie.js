@@ -52,6 +52,7 @@ function Create_Movie(props) {
           <label for="imdb_score">imdb-score</label>
           <input type="range" id="imdb_score" min="0" max="10"
           onChange={(e)=>props.setIMDBScore(e.target.value)}
+          value={props.MovieEditCreate["imdb_score"]}
           />
         </p>
         </div>
@@ -59,26 +60,39 @@ function Create_Movie(props) {
         <p class="range-field col s12">
           <label for="99popularity">99popularity</label>
           <input type="range" id="99popularity" min="0" max="99"
+           value={props.MovieEditCreate["99popularity"]}
           //  TODO:check max value for 99popularity
           onChange={(e)=>props.set99popularity(e.target.value)}
           />
         </p>
         </div>
+        <div className="row">
         <div class="input-field col s12">
-          <select multiple>
+          <select multiple className="MultiSelectGenre"
+          onChange={(e) => props.onMultiGenreClicked(e)} 
+          //TODO : Multiple option click not working.
+          //TODO: ALso while editing name , director not properly working.
+          //TODO : Check the working of edit movie
+          value={props.MovieEditCreate.genre}
+          >
             <option value="" disabled selected>Choose your option</option>
             {/* <option value="1">Option 1</option>
             <option value="2">Option 2</option>
             <option value="3">Option 3</option> */}
             {genresDropdown}
           </select>
-          <label>Materialize Multiple Select</label>
+          <label>Select Genre</label>
+        </div>
         </div>
         
-        <div className="card-action center">
-          <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
+        <div className="card-action container">
+        <button className={`${styles.Button} btn waves-effect waves-light #455a64 blue-grey darken-2`} type="submit" name="action"
           onClick={()=>props.createMovie()}
           >Add Movie
+          </button>
+          <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
+          onClick={()=>props.OnCancelAddMovie()}
+          >Cancel
           </button>
         </div>
       </div>
