@@ -1,5 +1,16 @@
-.MainContent{
+/* .MainContent{
   display : flex;
   margin-top : 200px;
   justify-content: space-around;
+} */
+
+.MainContent {
+  margin-top:  200px;
+}
+
+.MovieGenreBtns{
+  display: flex;
+  position: absolute;
+  top : 15%;
+  left : 50%;
 }

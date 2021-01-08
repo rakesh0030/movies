@@ -8,9 +8,10 @@ function Dropdown(props) {
       return <option value={s} onClick={() => props.onOptionsClicked(s)}>{s}</option>
     })
   }
+  console.log("props.onOptionsClicked ",props.onOptionsClicked);
   return (
-    <div class="input-field col s12">
-      <select multiple className={`${styles.Dropdown}`}>
+    <div class="input-field col s5">
+      <select className={`${styles.Dropdown}`}>
         <option value="" disabled selected>Choose your option</option>
         {options}
       </select>

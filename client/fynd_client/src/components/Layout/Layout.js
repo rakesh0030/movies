@@ -11,12 +11,19 @@ import Create_Genre from '../Movie/Create_Genre/Create_Genre';
 
 function Layout(props) {
   //Currently doing directly later may add react routing
-  let mainContent = (<div className={styles.MainContent}>
-    <SideBar {...props} />
-    <Movie {...props} />
-    <Dropdown {...props} onOptionsClicked={props.onSortOptionClicked} />
-    <Pagination {...props} onClickHandler={props.onPaginationBtnClicked} />
-  </div>
+  let mainContent = (
+    // <div className={styles.MainContent}>
+    <div className={`container ${styles.MainContent}`}>
+      <div className="row">
+        <SideBar {...props}/>
+        <div className="col s9">
+        <Dropdown {...props} onOptionsClicked={props.onSortOptionClicked}/>
+        <div className="col s2"></div>
+        <Pagination {...props} onClickHandler={props.onPaginationBtnClicked}/>
+        <Movie {...props}/>
+        </div>
+      </div>
+    </div>
   );
   
   console.log("wether to show login screen",props.isLoginScreenOpen);
@@ -38,12 +45,12 @@ function Layout(props) {
   const jwt = localStorage.getItem("jwt");
   let AddMovieGenreBtns = null;
   console.log("jwt in Lyout is",jwt);
-  if(jwt){
+  if(jwt && !props.isMovieCreationScreenOpen && !props.isGenreCreationScreenOpen){
     AddMovieGenreBtns = (
-    <>
+    <div className={`container ${styles.MovieGenreBtns}`}>
     <Button {...props} onClickHandler={props.onAddMovieGenreClicked} btnText="Add Movie"></Button>
     <Button {...props} onClickHandler={props.onAddGenreGenreClicked} btnText="Add Genre"></Button>
-    </>
+    </div>
     )
   }
 
@@ -51,8 +58,8 @@ function Layout(props) {
     <div className={styles.Layout}>
       <NavBar {...props}>
       </NavBar>
-      {mainContent}
       {AddMovieGenreBtns}
+      {mainContent}
     </div>
   );
 }

@@ -4,10 +4,10 @@ const router = express.Router();
 
 const genreController = require('../controllers/genre');
 
-const requireLogin = require('../middlewares/requireLogin');
+const {requireLogin} = require('../middlewares/requireLogin');
 
 //TODO: add require login and propetly route that is only use single router and apply get and post to it.
-router.post('/',genreController.createGenre);
+router.post('/',requireLogin,genreController.createGenre);
 
 router.get('/',genreController.loadAllGenre);
 

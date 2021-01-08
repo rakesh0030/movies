@@ -2,6 +2,10 @@
   margin : 5px;
 }
 
+.Tags :hover{
+  cursor: pointer !important;
+}
+
 .TagSelected{
   background-color: gray;
 }

@@ -9,7 +9,7 @@ function MovieItem(props) {
   }
   return (
     <div className={styles.MovieItem}>
-      <div class="col s12 m2">
+      <div class="col s12">
         <div class="card">
           <ul class={`card-content ${styles.Tags}`}>
             {props.movie.name}

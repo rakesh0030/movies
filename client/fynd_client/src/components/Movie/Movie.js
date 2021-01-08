@@ -11,7 +11,7 @@ function Movie(props) {
 
 
   return (
-    <div className={styles.Movie}>
+    <div className={`${styles.Movie} col s12`}>
       {MovieArr}
     </div>
   );

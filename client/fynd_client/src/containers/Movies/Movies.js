@@ -200,11 +200,30 @@ class Movies extends Component {
             // return `${m.name} dir : ${m.director}`;
           })
           this.setState({
-            suggestion : {
+            suggestion: {
               //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
               suggestionText: value,
-              suggestions : suggArr
+              suggestions: suggArr
             }
+          }, () => {
+            var Autoelems = document.querySelectorAll('.autocomplete');
+            let suggestionArray = this.state.suggestion.suggestions;
+            let suggestionObj = suggestionArray.map((e) => {
+              return {
+                [e]: null
+              }
+            })
+      console.log("suggestionObject is",suggestionObj)
+      var AutoInstances = M.Autocomplete.init(Autoelems, {
+        data : suggestionObj
+      });
+      console.log("Auto elems is",Autoelems);
+      console.log("Auto instances is ",AutoInstances);
+      console.log("Available method is",M.Autocomplete);
+      var AutoInstanceObj = M.Autocomplete.getInstance(Autoelems[0]);
+      AutoInstanceObj.open();
+      //Check what is getting wrong
+      console.log("Auto complete is",AutoInstanceObj);
           })
         })
         .catch((e)=>{
@@ -217,14 +236,21 @@ class Movies extends Component {
 
   onSearchSuggestionClicked = (value) => {
     console.log("clicked suggestion");
-    this.setState({
+    this.setState((oldState)=>{
+      return {
       suggestion : {
         //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
         suggestionText: value,
         suggestions : []
+      },
+      searchCriteria : {
+        ...oldState.searchCriteria,
+        searchText : value
       }
-    })
+    }})
   }
+
+  //TODO : Sync the search Text with serach Text box in screen.
 
   onSearchBtnClicked = () =>{
     //TODO : Later refactor the load All api request in a method and call that
@@ -237,7 +263,10 @@ class Movies extends Component {
       //because of not made then this will cause error.
       //TODO : Add JWT here also.
     }
-    axios.post('/movies/loadAll',postObj)
+    let searchCriteria = this.state.searchCriteria;
+    let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
+    console.log(queryString);
+    axios.get(`/movies?${queryString}`)
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
@@ -291,6 +320,7 @@ class Movies extends Component {
 
   onSortOptionClicked = (value)=>{
     //TODO : Check if the first i.e. "" is not the sort selected
+    console.log("onSoetOptionClciked called");
     if(value.length > 0){
       this.setState((oldState) => {
         return {
@@ -454,7 +484,10 @@ class Movies extends Component {
         }
       }
     }
-    axios.post('/movies/loadAll',postObj,options)
+    let searchCriteria = this.state.searchCriteria;
+    let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
+    console.log(queryString);
+    axios.get(`/movies?${queryString}`)
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
@@ -469,9 +502,20 @@ class Movies extends Component {
         alert("Error in getting movie list",e);
       })
 
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded',  ()=> {
       var elems = document.querySelectorAll('select');
       var instances = M.FormSelect.init(elems);
+      var Autoelems = document.querySelectorAll('.autocomplete');
+      let suggestionArray = this.state.suggestion.suggestions;
+      let suggestionObj = suggestionArray.map((e)=>{
+        return {
+          [e] : null
+        }
+      })
+      console.log("suggestionObject is",suggestionObj)
+      var AutoInstances = M.Autocomplete.init(Autoelems, {
+        data : suggestionObj
+      });
     });
   }
 

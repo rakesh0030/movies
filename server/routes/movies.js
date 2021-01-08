@@ -9,15 +9,16 @@ const {requireLogin,isLoggedIn} = require('../middlewares/requireLogin');
 router.post('/',moviesController.createMovie);
 
 //TODO : Check and change the below route to get/post and also their api design as well
-router.post('/loadAll',isLoggedIn,moviesController.loadAllMovies);
+// router.post('/loadAll',isLoggedIn,moviesController.loadAllMovies);
+router.get('/',isLoggedIn,moviesController.loadAllMovies);
 
 router.get('/search/:searchText',moviesController.searchSuggestion);
 
 //TODO : Add require Login to below route
-router.delete('/:movieID',moviesController.deleteMovie);
+router.delete('/:movieID',requireLogin,moviesController.deleteMovie);
 
 //TODO : Add require Login to below route
-router.put('/',moviesController.updateMovie);
+router.put('/',requireLogin,moviesController.updateMovie);
 
 // router.get('/user-post',requireLogin,postsController.loadUserPosts);
 
