@@ -12,12 +12,12 @@ class Movies extends Component {
       suggestions : [],
       suggestionText: ""
     },
-    Links : ["Admin"],
+    Links : ["Admin Login"],
     Tags : [],
     MovieList : [],
     searchCriteria : {
       sort : null,
-      genres : [],
+      genre : [],
       searchText : "",
       //TODO : Currently not making next an previous disabled but will later do.
       size : 10,
@@ -41,9 +41,14 @@ class Movies extends Component {
       name : "",
       password : ""
     },
+    newAdmin : {
+      name : "",
+      password : ""
+    },
     //TODO : Might change later this so that we don't require below field but currently
     //using it to identify on which screen we are
     isLoginScreenOpen : false,
+    isSignUpScreenOpen : false,
     isMovieCreationScreenOpen : false,
     isGenreCreationScreenOpen : false,
     /*
@@ -66,6 +71,45 @@ class Movies extends Component {
       genre : ["Drama"] //TODO : Remove this dummy genre,created because we need atleast one genre
     },
     genreCreate : ""
+  }
+
+  onLogoClicked = ()=>{
+    this.setState({
+      suggestion: {
+        suggestions : [],
+        suggestionText: ""
+      },
+      searchCriteria : {
+        sort : null,
+        genre : [],
+        searchText : "",
+        size : 10,
+        from : 0
+      },
+      sortableFields : ["name", "director", "99popularity","imdb_score"],
+      admin : {
+        _id : "",
+        name : "",
+        password : ""
+      },
+      newAdmin : {
+        name : "",
+        password : ""
+      },
+      isLoginScreenOpen : false,
+      isSignUpScreenOpen : false,
+      isMovieCreationScreenOpen : false,
+      isGenreCreationScreenOpen : false,
+      MovieEditCreate : {
+        _id : null,
+        name : "",
+        director : "",
+        "99popularity" : 0,
+        imdb_score : 0,
+        genre : ["Drama"]
+      },
+      genreCreate : ""
+    })
   }
 
   syncSearchInputWithState = (e)=>{
@@ -100,6 +144,12 @@ class Movies extends Component {
   OnCancelLogin = ()=>{
     this.setState({
       isLoginScreenOpen : false
+    })
+  }
+
+  OnCancelSignUp = ()=>{
+    this.setState({
+      isSignUpScreenOpen : false
     })
   }
 
@@ -184,7 +234,8 @@ class Movies extends Component {
         'Authorization': localStorage.getItem("jwt")
       }
     }
-    let requestObj = { movie : {...this.state.MovieEditCreate} }
+    let requestObj = { ...this.state.MovieEditCreate }
+    delete requestObj._id;
     //TODO : Later change how to make sure we are editing or 
     //creating a new movie.
     if(this.state.MovieEditCreate._id){
@@ -197,7 +248,7 @@ class Movies extends Component {
       })
       .catch((err) => {
         console.log("Error is ", err);
-        M.toast({ html: `Error in creating movie ${err}`, classes: "#ff1744 red accent-3" })
+        M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
       })
     }
     return axios.post("/movies", requestObj, options)
@@ -208,8 +259,8 @@ class Movies extends Component {
         })
       })
       .catch((err) => {
-        console.log("Error is ", err);
-        M.toast({ html: `Error in creating movie ${err}`, classes: "#ff1744 red accent-3" })
+        console.log("Error is ", err.response);
+        M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
       })
   }
 
@@ -222,17 +273,23 @@ class Movies extends Component {
     //TODO : Check wether we are making a duplicate genre if yes then do not make
     //TODO : On client side check using Tag comparison
     //TODO : On server side also check
+    let newGenre = this.state.genreCreate;
     let requestObj = {genre : this.state.genreCreate}
     return axios.post("/genres", requestObj, options)
       .then((r) => {
         M.toast({ html: `Genre created successfully.`, classes: "#2e7d32 green darken-3" });
-        this.setState({
-          isGenreCreationScreenOpen : false
+        this.setState((oldState)=>{
+          let Tags = oldState.Tags;
+          Tags.push({genreName :newGenre, _id : r.data.data});
+          return{
+          isGenreCreationScreenOpen : false,
+          Tags
+          }
         })
       })
       .catch((err) => {
         console.log("Error is ", err);
-        M.toast({ html: `Error in creating Genre ${err}`, classes: "#ff1744 red accent-3" })
+        M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
       })
   }
 
@@ -274,7 +331,7 @@ class Movies extends Component {
         .then((r)=>{
           //TODO : Change server side logic to only recieve movie name and director name 
           //From Backend
-          const resp = r.data;
+          const resp = r.data.data;
           console.log("Response is",resp);
           const suggArr = resp.map((m)=>{
             //TODO : Check how to show in suggestion both name and dir name
@@ -316,7 +373,8 @@ class Movies extends Component {
         })
         .catch((e)=>{
           //TODO : add to all these error alerts, a Toast message instead.
-          alert("Error in fetching suggestions",e);
+          M.toast({ html: `Error in fetching suggestions ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
+          //alert("Error in fetching suggestions",e);
         })
     }
     console.log(this.state);
@@ -366,7 +424,7 @@ class Movies extends Component {
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
-          MovieList : r.data
+          MovieList : r.data.data
         })
       })
       .catch((e)=>{
@@ -374,19 +432,21 @@ class Movies extends Component {
 
         //TODO : Also add text for 0 movies, 0 genres, No movie found in serach text block.
         console.log("error is",e);
-        alert("Error in getting movie list after searching",e);
+        M.toast({ html: `Error in getting movie list after searching ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
+        //alert("Error in getting movie list after searching",e);
       })
   }
 
   onGenreClicked = (value) => {
-    if (!this.state.searchCriteria.genres.includes(value)) {
+    console.log(value);
+    if (!this.state.searchCriteria.genre.includes(value)) {
       this.setState((oldState) => {
-        let genres = [...oldState.searchCriteria.genres, value];
+        let genre = [...oldState.searchCriteria.genre, value];
         return {
           searchCriteria: {
             ...oldState.searchCriteria,
             from : 0,
-            genres
+            genre
           }
         };
       },
@@ -394,15 +454,16 @@ class Movies extends Component {
       )
     }
     else{
-      let idx = this.state.searchCriteria.genres.indexOf(value);
+      let idx = this.state.searchCriteria.genre.indexOf(value);
       //TODO : Check with only one value in array working of splice method.
-      this.state.searchCriteria.genres.splice(idx,1);
-      let genres = this.state.searchCriteria.genres;
+      this.state.searchCriteria.genre.splice(idx,1);
+      let genre = this.state.searchCriteria.genre;
       this.setState((oldState) => {
         return {
           searchCriteria: {
             ...oldState.searchCriteria,
-            genres
+            genre,
+            from : 0
           }
         };
       },
@@ -422,7 +483,8 @@ class Movies extends Component {
         return {
           searchCriteria: {
             ...oldState.searchCriteria,
-            sort : value
+            sort : value,
+            from : 0
           }
         };
       },
@@ -482,6 +544,53 @@ class Movies extends Component {
     })
   }
 
+  setSignUpPassword = (value)=>{
+    this.setState((oldState)=>{
+      return {
+        newAdmin :{
+          ...oldState.newAdmin,
+          password : value
+        }
+      }
+    })
+  }
+
+  setSignUpname = (value)=>{
+    this.setState((oldState)=>{
+      return {
+        newAdmin :{
+          ...oldState.newAdmin,
+          name : value
+        }
+      }
+    })
+  }
+
+  onAddAdminClicked = ()=>{
+    this.setState({
+      isSignUpScreenOpen : true
+    })
+  }
+
+  onLogOutClicked = ()=>{
+    console.log("Log out clicked");
+    localStorage.removeItem("jwt");
+    localStorage.removeItem("admin");
+    this.setState((oldState)=>{
+      let oldMovieList = oldState.MovieList;
+      for(let i=0;i<oldMovieList.length;i++){
+        oldMovieList[i].isModificationAllowed = false;
+      }
+      return{
+      isGenreCreationScreenOpen : false,
+      isLoginScreenOpen : false,
+      isMovieCreationScreenOpen : false,
+      Links :["Admin Login"],
+      MovieList :oldMovieList
+      }
+    })
+  }
+
   loginReq = ()=>{
     console.log("Login Request made");
     const postData = {
@@ -493,15 +602,49 @@ class Movies extends Component {
         M.toast({html: 'Login successful', classes:"#2e7d32 green darken-3"})
         // alert('Login successful');
         console.log('Response is',res);
-        console.log(res.data.token);
-        localStorage.setItem("jwt",res.data.token);
-        localStorage.setItem("admin",JSON.stringify(res.data.adminDetails));
+        console.log(res.data.data.token);
+        localStorage.setItem("jwt",res.data.data.token);
+        localStorage.setItem("admin",JSON.stringify(res.data.data.adminDetails));
+        let admin = res.data.data.adminDetails;
         this.setState({
-          isLoginScreenOpen : false
+          isLoginScreenOpen : false,
+          Links : ["Log Out"],
+          from : 0
+        },()=>{
+          this.onSearchBtnClicked();
         })
       })
       .catch((err)=>{
-        M.toast({html: `Error in login ${err}`, classes:"#ff1744 red accent-3"})
+        M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
+       // M.toast({html: `Error in login ${err}`, classes:"#ff1744 red accent-3"})
+        //alert('Error in login ',err);
+      })
+  }
+
+  SignUpReq = ()=>{
+    console.log("SignUp Request made");
+    const postData = {
+      name : this.state.newAdmin.name,password : this.state.newAdmin.password
+    };
+    let options = {
+      headers: {
+        'Authorization': localStorage.getItem("jwt")
+      }
+    }
+    console.log("Post Data for signup",postData);
+    axios.post('/auth/signup',postData,options)
+      .then((res)=>{
+        M.toast({html: 'signup successful', classes:"#2e7d32 green darken-3"})
+        // alert('signup successful');
+        console.log('Response is',res);
+        console.log(res.data.data.token);
+        this.setState({
+          isSignUpScreenOpen : false
+        })
+      })
+      .catch((err)=>{
+        M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
+        //M.toast({html: `Error in signup ${err}`, classes:"#ff1744 red accent-3"})
         //alert('Error in login ',err);
       })
   }
@@ -582,13 +725,15 @@ class Movies extends Component {
   componentDidMount(){
     axios.get('/genres')
       .then((r)=>{
+        console.log("Genres are ",r);
         this.setState({
-          Tags : r.data
+          Tags : r.data.data
         })
       })
       .catch((e)=>{
         console.log("error is",e);
-        alert("Error in getting Tags",e);
+        M.toast({ html: `Error in getting tags ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
+        //alert("Error in getting Tags",e);
       })
     let searchCriteria = this.state.searchCriteria;
     let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
@@ -605,7 +750,7 @@ class Movies extends Component {
       .then((r)=>{
         //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
-          MovieList : r.data
+          MovieList : r.data.data
         })
       })
       .catch((e)=>{
@@ -613,8 +758,17 @@ class Movies extends Component {
 
         //TODO : Also add text for 0 movies, 0 genres, No movie found in serach text block.
         console.log("error is",e);
-        alert("Error in getting movie list",e);
+        M.toast({ html: `Error in getting movie list ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
+        // alert("Error in getting movie list",e);
       })
+
+    //Checking if jwt token is there if yes then add Log out to admin
+
+    if(jwt){
+      this.setState({
+        Links : ["Log Out"]
+      })
+    }
 
     document.addEventListener('DOMContentLoaded',  ()=> {
       var elems = document.querySelectorAll('select');
@@ -626,9 +780,14 @@ class Movies extends Component {
           [e] : null
         }
       })
+      var Tooltipelems = document.querySelectorAll('.tooltipped');
+      var instances = M.Tooltip.init(Tooltipelems);
       console.log("suggestionObject is",suggestionObj)
       var AutoInstances = M.Autocomplete.init(Autoelems, 
         {minLength: 1});
+
+        var Inputelems  = document.querySelectorAll("input[type=range]");
+        M.Range.init(Inputelems);
     });
   }
 
@@ -696,6 +855,15 @@ class Movies extends Component {
         OnCancelAddGenre = {this.OnCancelAddGenre}
         OnCancelLogin = {this.OnCancelLogin}
         syncSearchInputWithState = {this.syncSearchInputWithState}
+        SignUpReq = {this.SignUpReq}
+        OnCancelSignUp = {this.OnCancelSignUp}
+        onAddAdminClicked = {this.onAddAdminClicked}
+        isSignUpScreenOpen ={this.state.isSignUpScreenOpen}
+        setSignUpname = {this.setSignUpname}
+        newAdmin = {this.state.newAdmin}
+        setSignUpPassword = {this.setSignUpPassword}
+        onLogOutClicked = {this.onLogOutClicked}
+        onLogoClicked = {this.onLogoClicked}
         />
       </div>
     );

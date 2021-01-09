@@ -8,12 +8,13 @@ import Login from '../Auth/Login/Login';
 import Button from '../UI/Button/Button';
 import Create_Movie from '../Movie/Create_Movie/Create_Movie';
 import Create_Genre from '../Movie/Create_Genre/Create_Genre';
+import SignUp from '../Auth/SignUp/SignUp';
 
 function Layout(props) {
   //Currently doing directly later may add react routing
   let mainContent = (
     // <div className={styles.MainContent}>
-    <div className={`container ${styles.MainContent}`}>
+    <div className={`${styles.MainContent}`}>
       <div className="row">
         <SideBar {...props}/>
         <div className="col s9">
@@ -32,6 +33,12 @@ function Layout(props) {
     mainContent = <Login {...props}/>
   }
 
+  if(props.isSignUpScreenOpen){
+    mainContent = <SignUp {...props}/>
+  }
+
+  
+
   console.log("props in Lyout is",props);
 
   if(props.isMovieCreationScreenOpen){
@@ -45,11 +52,12 @@ function Layout(props) {
   const jwt = localStorage.getItem("jwt");
   let AddMovieGenreBtns = null;
   console.log("jwt in Lyout is",jwt);
-  if(jwt && !props.isMovieCreationScreenOpen && !props.isGenreCreationScreenOpen){
+  if(jwt && !props.isMovieCreationScreenOpen && !props.isGenreCreationScreenOpen && !props.isSignUpScreenOpen){
     AddMovieGenreBtns = (
     <div className={`container ${styles.MovieGenreBtns}`}>
     <Button {...props} onClickHandler={props.onAddMovieGenreClicked} btnText="Add Movie"></Button>
     <Button {...props} onClickHandler={props.onAddGenreGenreClicked} btnText="Add Genre"></Button>
+    <Button {...props} onClickHandler={props.onAddAdminClicked} btnText="Add Admin"></Button>
     </div>
     )
   }

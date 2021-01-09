@@ -1,7 +1,7 @@
-.Tags{
+/* .Tags{
   display: grid;
   grid-template-columns: auto auto;
-}
+} */
 
 .DeleteEdit{
   display: inline;
@@ -11,4 +11,16 @@
 .Icon{
   margin-right: 10px;
   cursor: pointer; 
+}
+
+.Delete{
+  color : #d32f2f;
+}
+
+.Edit{
+  color :#26a69a;
+}
+
+.MovieItem{
+  background-color: rgba(179,157,219,0.3);
 }

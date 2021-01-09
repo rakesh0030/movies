@@ -1,6 +1,8 @@
 .Tags{
   margin : 5px;
   cursor: pointer !important;
+  /* color:black; */
+  color : gray;
 }
 
 .Tags :hover{
@@ -8,5 +10,7 @@
 }
 
 .TagSelected{
-  background-color: gray;
+  background-color:#2196f3 !important;
+  color: white;
+
 }

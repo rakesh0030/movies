@@ -54,18 +54,18 @@ function Create_Movie(props) {
         </div>
         {/* TODO : Look how to show these range value on selection */}
         <div className="row">
-        <p class="range-field col s12">
-          <label for="imdb_score">imdb-score</label>
-          <input type="range" id="imdb_score" min="0" max="10"
+        <p class="col s12">
+          <label for="imdb_score">imdb-score</label> 
+          <input type="number" id="imdb_score" min="0" max="10"
           onChange={(e)=>props.setIMDBScore(e.target.value)}
           value={props.MovieEditCreate["imdb_score"]}
           />
         </p>
         </div>
         <div className="row">
-        <p class="range-field col s12">
+        <p class="col s12">
           <label for="99popularity">99popularity</label>
-          <input type="range" id="99popularity" min="0" max="99"
+          <input type="number" id="99popularity" min="0" max="99"
            value={props.MovieEditCreate["99popularity"]}
           //  TODO:check max value for 99popularity
           onChange={(e)=>props.set99popularity(e.target.value)}

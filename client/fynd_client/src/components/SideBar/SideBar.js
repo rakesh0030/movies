@@ -12,7 +12,7 @@ function SideBar(props) {
         class={styles.Tag} 
         Tag={e.genreName} 
       onGenreClicked={props.onGenreClicked}
-      addClickedBackground={props.searchCriteria.genres.includes(e.genreName)}
+      addClickedBackground={props.searchCriteria.genre.includes(e.genreName)}
       />)
     })
   }

@@ -37,7 +37,14 @@ exports.createGenre = (req,res,next) => {
         };
         return admin.name;
       })
-      .then((adminName)=>{
+      .then(async (adminName)=>{
+        const isNameExists = await db.collection('genres').findOne({ genreName: genre });
+        if (isNameExists)
+          throw {
+            data: null,
+            message: "Genre name already exists.",
+            status: 400
+          };
         return db.collection('genres').insertOne({
           genreName : genre
         })

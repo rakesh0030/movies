@@ -6,7 +6,7 @@ import Search from './Search/Search';
 function NavBar(props) {
   return (
     <div className={styles.NavBar}>
-      <Logo/>
+      <Logo {...props}/>
       <Search {...props}/>
       <Links {...props}/>
     </div>

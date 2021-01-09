@@ -49,7 +49,7 @@ exports.createMovie = (req,res,next) => {
     if( !movie["99popularity"] || !movie.director || !movie.imdb_score || !movie.name || !movie.genre.length || Object.keys(movie).length != 5 )
     throw {
       data : null,
-      message: "All/Only fields(99popularity, director, name, imdb_score,genre) required.",
+      message: "All/Only fields( name, director, 99popularity, imdb_score,genre) required.",
       status: 400
     };
     

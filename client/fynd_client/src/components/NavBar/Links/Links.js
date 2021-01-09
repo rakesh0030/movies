@@ -6,6 +6,7 @@ function Links(props) {
   console.log(LinkItems,props.Links);
   LinkItems = props.Links.map((linkText)=>{
     return <Link linkText={linkText} {...props}
+    onClickHandler={linkText == "Admin Login" ? props.adminLinkBtnClickhandler : props.onLogOutClicked}
     />
   })
   console.log(LinkItems,props.Links);

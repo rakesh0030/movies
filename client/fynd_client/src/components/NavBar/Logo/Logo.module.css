@@ -5,4 +5,5 @@
 .Logo img{
   height: 60px;
   object-fit: cover;
+  cursor: pointer;
 }
