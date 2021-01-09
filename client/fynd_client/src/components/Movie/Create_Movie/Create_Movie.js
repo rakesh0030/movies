@@ -16,7 +16,12 @@ function Create_Movie(props) {
 
   if(props.Tags && props.Tags.length > 0){
     genresDropdown = props.Tags.map((e)=>{
-      return <option value={e.genreName}>{e.genreName}</option>
+      let selected = props.MovieEditCreate.genre.includes(e.genreName) ? "true" : null;
+      console.log(selected,e);
+      return <option 
+      value={e.genreName} 
+      // select = {selected}
+      >{e.genreName}</option>
     })
   }
 
@@ -32,6 +37,7 @@ function Create_Movie(props) {
             <input id="movie_name" type="text"
             value={props.MovieEditCreate.name}
             onChange={(e)=>props.setMovieName(e.target.value)}
+            select
             ></input>
             <label for="movie_name">Movie-Name</label>
           </div>
@@ -68,7 +74,7 @@ function Create_Movie(props) {
         </div>
         <div className="row">
         <div class="input-field col s12">
-          <select multiple className="MultiSelectGenre"
+          <select multiple className="MultiSelectGenre" id="MultiSelectGenre"
           onChange={(e) => props.onMultiGenreClicked(e)} 
           //TODO : Multiple option click not working.
           //TODO: ALso while editing name , director not properly working.

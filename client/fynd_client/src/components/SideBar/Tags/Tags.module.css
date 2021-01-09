@@ -1,5 +1,6 @@
 .Tags{
   margin : 5px;
+  cursor: pointer !important;
 }
 
 .Tags :hover{

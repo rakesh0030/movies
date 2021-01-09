@@ -68,6 +68,17 @@ class Movies extends Component {
     genreCreate : ""
   }
 
+  syncSearchInputWithState = (e)=>{
+    let value = e.target.value;
+    this.setState({
+      suggestion: {
+        //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
+        suggestionText: value,
+        suggestions: []
+      }
+    })
+  }
+
   setGenreName = (e)=>{
     this.setState({
       genreCreate : e
@@ -180,6 +191,9 @@ class Movies extends Component {
       return axios.put("/movies", requestObj, options)
       .then((r) => {
         M.toast({ html: `movie created successfully.`, classes: "#2e7d32 green darken-3" });
+        this.setState({
+          isMovieCreationScreenOpen : false
+        })
       })
       .catch((err) => {
         console.log("Error is ", err);
@@ -189,6 +203,9 @@ class Movies extends Component {
     return axios.post("/movies", requestObj, options)
       .then((r) => {
         M.toast({ html: `movie created successfully.`, classes: "#2e7d32 green darken-3" });
+        this.setState({
+          isMovieCreationScreenOpen : false
+        })
       })
       .catch((err) => {
         console.log("Error is ", err);
@@ -209,6 +226,9 @@ class Movies extends Component {
     return axios.post("/genres", requestObj, options)
       .then((r) => {
         M.toast({ html: `Genre created successfully.`, classes: "#2e7d32 green darken-3" });
+        this.setState({
+          isGenreCreationScreenOpen : false
+        })
       })
       .catch((err) => {
         console.log("Error is ", err);
@@ -476,7 +496,9 @@ class Movies extends Component {
         console.log(res.data.token);
         localStorage.setItem("jwt",res.data.token);
         localStorage.setItem("admin",JSON.stringify(res.data.adminDetails));
-        
+        this.setState({
+          isLoginScreenOpen : false
+        })
       })
       .catch((err)=>{
         M.toast({html: `Error in login ${err}`, classes:"#ff1744 red accent-3"})
@@ -543,7 +565,15 @@ class Movies extends Component {
       isMovieCreationScreenOpen : true
     },()=>{
       var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems);
+      var instances = M.FormSelect.init(elems);
+      var multiSelect = document.getElementById("MultiSelectGenre");
+      for (var i = 0; i < multiSelect.options.length; i++) {
+        console.log("option is",(multiSelect.options[i].value));
+        console.log("Movie Edit create",this.state.MovieEditCreate.genre)
+        multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
+      }
+      //multiSelect.value = this.state.MovieEditCreate.genre;
+      M.updateTextFields();
     })
   }
 
@@ -603,8 +633,20 @@ class Movies extends Component {
   }
 
   componentDidUpdate = ()=>{
+    var elems2 = document.querySelectorAll('select');
+    var instances2 = M.FormSelect.init(elems2);
     var elems = document.querySelectorAll('select');
-    var instances = M.FormSelect.init(elems);
+      var instances = M.FormSelect.init(elems);
+      var multiSelect = document.getElementById("MultiSelectGenre");
+      if(multiSelect){
+      for (var i = 0; i < multiSelect.options.length; i++) {
+        console.log("option is",(multiSelect.options[i].value));
+        console.log("Movie Edit create",this.state.MovieEditCreate.genre)
+        multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
+      }
+    }
+      //multiSelect.value = this.state.MovieEditCreate.genre;
+      M.updateTextFields();
   }
 
 
@@ -653,6 +695,7 @@ class Movies extends Component {
         OnCancelAddMovie = {this.OnCancelAddMovie}
         OnCancelAddGenre = {this.OnCancelAddGenre}
         OnCancelLogin = {this.OnCancelLogin}
+        syncSearchInputWithState = {this.syncSearchInputWithState}
         />
       </div>
     );
