@@ -33,11 +33,11 @@ function onKeyDownFunc(e){
       InputValue={props.suggestion.suggestionText}
       /> */}
 
-        <div class="row">
+        <div class={`${styles.Autocomplete} row`} >
           <div class="col s12">
             <div class="input-field col s9">
               <i class="material-icons prefix">search</i>
-              <input type="text" id="autocomplete-input" className={`${styles.Autocomplete}`}
+              <input type="text" id="autocomplete-input"
                 onKeyUp={function (e){  console.log("inside");onKeyUpFunc(e);}}
                 onKeyDown={function (e){  onKeyDownFunc(e)}}
                 onChange={(e)=>{props.syncSearchInputWithState(e)}}

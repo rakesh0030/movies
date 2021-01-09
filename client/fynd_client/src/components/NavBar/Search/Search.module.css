@@ -7,5 +7,6 @@
 }
 
 .Autocomplete{
-  margin-bottom: 0px !important ;
+  margin: 20px 0px 10px !important ;
+  color : white;
 }
