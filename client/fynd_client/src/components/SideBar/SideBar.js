@@ -21,8 +21,8 @@ function SideBar(props) {
   console.log("TagArr is",TagArr);
 
   return (  
-  <div class={`col s3 ${styles.SideBar}`}>
-    <div class="card">
+  <div class={`col s3`}>
+    <div class={`card ${styles.SideBar}`}>
       <ul class={`card-content ${styles.Tags}`}>
         <div class="row">
           {TagArr}

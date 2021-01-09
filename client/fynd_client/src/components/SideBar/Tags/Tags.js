@@ -1,10 +1,10 @@
 import styles from './Tags.module.css';
 
 function Tags(props) {
-  let addClickedBackground = props.addClickedBackground ?  styles.TagSelected : "#c8e6c9 green lighten-4";
+  let addClickedBackground = props.addClickedBackground ? "##64dd17 light-green accent-4"  : styles.TagSelected;
   return (
 
-    <li className={`${styles.Tags} col s5 chip center  ${addClickedBackground}`} 
+    <li className={`${styles.Tags} chip  ${addClickedBackground}`} style={{color:"white",fontWeight:"bold"}} 
     onClick={()=>props.onGenreClicked(props.Tag)}
     
     >

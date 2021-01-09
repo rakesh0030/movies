@@ -1,5 +1,5 @@
 .Tags{
-  margin : 5px;
+  margin : 7px;
   cursor: pointer !important;
   /* color:black; */
   color : gray;
@@ -12,5 +12,5 @@
 .TagSelected{
   background-color:#2196f3 !important;
   color: white;
-
+  font-weight: 500 !important;
 }

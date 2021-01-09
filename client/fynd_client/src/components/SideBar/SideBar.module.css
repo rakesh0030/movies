@@ -13,3 +13,12 @@
   background-color: gray;
 } */
 
+.SideBar{
+  background-color: aliceblue;
+}
+
+.Tags{
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
