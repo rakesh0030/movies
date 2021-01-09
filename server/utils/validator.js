@@ -9,8 +9,6 @@ return { isValidate : true/false, message : null(In case of null) otherwise prop
 const validateString = (input , validateObj) => {
   //Check for Type if string 
   if(!typeof input == "string"){
-    //TODO : wherever I m recieving this message apppend to it the field 
-    //due to which the error occured.
     return {
       isValidate : false,
       message : "Field must be a string."
@@ -64,8 +62,6 @@ const validateString = (input , validateObj) => {
 const validateInteger = (input , validateObj) => {
   //Check for Type if integer 
   if(!Number.isInteger(input)){
-    //TODO : wherever I m recieving this message apppend to it the field 
-    //due to which the error occured.
     return {
       isValidate : false,
       message : "Field must be a integer."
@@ -105,8 +101,6 @@ const validateInteger = (input , validateObj) => {
 const validateFloat = (input , validateObj) => {
   //Check for Type if number 
   if(typeof input != "number"){
-    //TODO : wherever I m recieving this message apppend to it the field 
-    //due to which the error occured.
     return {
       isValidate : false,
       message : "Field must be a number."

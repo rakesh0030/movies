@@ -2,76 +2,113 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const path = require('path');
-
 const constants = require('../config/constants');
 
 const {getDb} = require('../utils/database');
-
-exports.protected = (req,res,next) =>{
-  res.send("Hello user");
-}
+const {validateString} = require('../utils/validator');
 
 exports.signUp = async (req, res, next) => {
   try {
-    const { name, email, password ,profilePic} = req.body;
-    if (!name || !email || !password)
+    const { name, password} = req.body;
+
+    if (!name || !password)
       throw {
-        message: "Require name,email and password for signup.",
-        status: 422
+        data : null,
+        message: "Require name and password for signup.",
+        status: 400
       };
-    const db = getDb();
-    const isEmailExists = await db.collection('Users').findOne({ email: email });
-    if (isEmailExists)
+    //Validate admin name
+    isNameValidated = validateString(name , {"max" : 60, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
+    if(!isNameValidated.isValidate){
       throw {
-        message: "Email already exists.",
-        status: 403
+        data : null,
+        message : `${isNameValidated.message} : name`,
+        status : 400
+      }
+    }
+    //Validate admin password
+    isPasswordValidated = validateString(password , {"max" : 60, "min" : 5 });
+    if(!isPasswordValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isPasswordValidated.message} : password`,
+        status : 400
+      }
+    }
+
+    
+    const db = getDb();
+    const isNameExists = await db.collection('admins').findOne({ name: name });
+    if (isNameExists)
+      throw {
+        data : null,
+        message: "Admin name already exists.",
+        status: 400
       };
     //Hasing the password using bcrypt
     bcrypt.hash(password, 8)
       .then((hashedPassword) => {
-        return db.collection('Users').insertOne({
+        return db.collection('admins').insertOne({
           name,
-          email,
-          password: hashedPassword,
-          profilePic,
-          followers : [],
-          following : [],
-          description : ""
+          password: hashedPassword
         });
       })
       .then((r) => {
-            return res.status(200).send("Signup Successful.");
+        console.log("Response is",r);
+        let respObj = {
+          data : r.insertedId,
+          message : "Admin added successfully",
+          status : 200
+        }
+        return res.status(200).json(respObj);
       })
       .catch((err) => {
-        console.log("Error in hashing password");
-        throw {
-          message: "Internal Server error.",
-          status: 500
-        };
+        return res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    return res.status(err.status).json(err);
   }
 }
 
-exports.signIn = (req,res,next) => {
+exports.logIn = (req,res,next) => {
   try{
     const {name , password} = req.body;
     if (!name || !password)
       throw {
+        data : null,
         message: "Require name and password for login.",
-        status: 422
+        status: 400
       };
+    //Validate admin name
+    isNameValidated = validateString(name , {"max" : 60, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
+    if(!isNameValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isNameValidated.message} : name`,
+        status : 400
+      }
+    }
+    //Validate admin password
+    isPasswordValidated = validateString(password , {"max" : 60, "min" : 5 });
+    if(!isPasswordValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isPasswordValidated.message} : password`,
+        status : 400
+      }
+    }
+
     const db = getDb();
     let adminDetails;
     db.collection('admins').findOne({ name: name })
       .then((adminInfo)=>{
         if (!adminInfo)
           throw {
-            message: "No account for this name",
-            status: 403
+            data : null,
+            message: "No admin found.",
+            status: 401
           };
         console.log("admin Info",adminInfo);
         adminDetails = adminInfo;
@@ -89,28 +126,31 @@ exports.signIn = (req,res,next) => {
               _id : adminDetails._id,
               name : adminDetails.name
             }
-            return res.status(200).json(
-              {
+            let respObj = {
+              data : {
                 token,
                 adminDetails : adminDetailsToBeSend
-              }
-            );
+              },
+              message : "Login successful.",
+              status : 200
+            }
+            return res.status(200).json(respObj);
           }
           else{
             throw {
+              data : null,
               message: "Incorrect Password.",
               status: 401
             };
           }
         })
-        .catch((err)=>{
-          console.log("Error in checking for name existence.") 
+        .catch((err)=>{ 
           console.log(err);
-          res.status(err.message).send(err.status);
+          res.status(err.status).json(err);
         }) 
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }

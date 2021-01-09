@@ -1,15 +1,12 @@
 const {getDb} = require('../utils/database');
 const mongodb = require('mongodb');
-const { response } = require('express');
+const { response, request } = require('express');
 const {validateFloat , validateInteger, validateString} = require('../utils/validator');
+const { JsonWebTokenError } = require('jsonwebtoken');
 
 
 //TODO : Remove all unnecessary comments
 
-//TODO: Add validator for password to have atleast one lowercase, one uppercase, one number and one special char
-// Also admin name must be between [3,50].
-// Also password must be between [8,50]
-//TODO : But these above only in case of sign up for admin provided.
 
 /*
 
@@ -26,25 +23,43 @@ Also 99popularity must be integer between [0,100].
 
 exports.createMovie = (req,res,next) => {
   try {
-    const movie  = req.body.movie;
-    // const adminID = req.admin_id;
-    //TODO : change later to be JWT token
+    const requestBody  = req.body;
+    if(requestBody && !typeof requestBody == "object"){
+      throw{
+        data : null,
+        message : "Request Body is empty/not object.",
+        status : 400
+      }
+    }
+    
     const adminID = req.adminID;
+    if(!adminID || typeof adminID == "undefined"){
+      throw{
+        data : null,
+        message : "Only admins can add/edit movies.",
+        status : 401
+      }
+    }
 
-    console.log("Movie obj is",movie);
+    //Taking the whole request in movie obj.
+    let movie = {
+      ...requestBody
+    }
 
-    if( !movie["99popularity"] || !movie.director || !movie.imdb_score || !movie.name || !movie.genre.length)
+    if( !movie["99popularity"] || !movie.director || !movie.imdb_score || !movie.name || !movie.genre.length || Object.keys(movie).length != 5 )
     throw {
-      message: "All fields(99popularity, director, name, imdb_score,genre) required.",
-      //TODO : change all status code properly.
+      data : null,
+      message: "All/Only fields(99popularity, director, name, imdb_score,genre) required.",
       status: 400
     };
+    
     //Validate all fields
 
     //Validate movie name
     isNameValidated = validateString(movie.name , {"max" : 100, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
     if(!isNameValidated.isValidate){
       throw {
+        data : null,
         message : `${isNameValidated.message} : name`,
         status : 400
       }
@@ -53,6 +68,7 @@ exports.createMovie = (req,res,next) => {
     isDirectorValidated = validateString(movie.director , {"max" : 60, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
     if(!isDirectorValidated.isValidate){
       throw {
+        data : null,
         message : `${isDirectorValidated.message} : director`,
         status : 400
       }
@@ -61,6 +77,7 @@ exports.createMovie = (req,res,next) => {
     isIMDBValidated = validateFloat(movie.imdb_score , {"max" : 10, "min" : 0 });
     if(!isIMDBValidated.isValidate){
       throw {
+        data : null,
         message : `${isIMDBValidated.message} : Imdb_Score`,
         status : 400
       }
@@ -69,6 +86,7 @@ exports.createMovie = (req,res,next) => {
     is99PopularityValidated = validateInteger(movie["99popularity"] , {"max" : 100, "min" : 0 });
     if(!is99PopularityValidated.isValidate){
       throw {
+        data : null,
         message : `${is99PopularityValidated.message} : 99popularity`,
         status : 400
       }
@@ -80,33 +98,34 @@ exports.createMovie = (req,res,next) => {
         isGenreValidated = validateString(currGenre, { "max": 50, "min": 3, "charsNotAllowed": ['_', '@', '/', '\\', '&'] });
         if (!isGenreValidated.isValidate) {
           throw {
+            data : null,
             message: `${isGenreValidated.message} : genre`,
             status: 400
           }
         }
       }
     }
-    
-    console.log(adminID);
-
+    else{
+      throw{
+        data : null,
+        message : "Movie genres must be an array.",
+        status : 400
+      }
+    }
+    //Getting DB
     const db = getDb();
     db.collection('admins').findOne({_id : mongodb.ObjectId(adminID)})
       .then((admin)=>{
         if(!admin)
         throw {
+          data : null,
           message: "Admin doesn't exists.",
-          //TODO : change all status code properly.
-          status: 403
+          status: 401
         };
         return admin.name;
       })
       .then((adminName)=>{
         return db.collection('movies').insertOne({
-          // "99popularity" : movie["99popularity"],
-          // director : movie.director,
-          // imdb_score : movie.imdb_score,
-          // name : movie.name,
-          // genre : movie.genre,
           ...movie,
           admin : {
             name : adminName,
@@ -115,17 +134,176 @@ exports.createMovie = (req,res,next) => {
         })
       })
       .then((r)=>{
-        res.status(200).send("Movie added successfully");
+        console.log("Response is",r);
+        let respObj = {
+          data : r.insertedId,
+          message : "Movie added successfully",
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err)=>{
         console.log(err);
-        res.status(err.message).send(err.status);
+        res.status(err.status).json(err);
       })
-    
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
+  }
+}
+
+exports.updateMovie = (req,res,next) => {
+  try {
+    //TODO : Check for existence of movie to update and not make any changes if doesn't exist.
+
+    //TODO : Check for wether the admin created this movie is changing it and from there itself get 
+    //admin name that will also be added to movie obj.
+
+    //TODO : Check for movie name that it is not change atleast.This should be done in promise 
+    //returned from above TODO that is when we are checking for movie existence.
+    //OR add movie name as first field in below updateOne that will automatically check for 
+    //new Movie name == current movie name.
+
+    const movie = req.body;
+    if(movie && !typeof movie == "object"){
+      throw{
+        data : null,
+        message : "Request Body is empty/not object.",
+        status : 400
+      }
+    }
+    const movieID = movie.movieID;
+    if(!movieID){
+      throw{
+        data : null,
+        message: "Please provide Movie ID to be updated.",
+        status: 400
+      }
+    }
+    if(!mongodb.ObjectID.isValid(movieID)){
+      throw{
+        data : null,
+        message: "Please provide a valid movie id.",
+        status: 400
+      }
+    }
+    delete movie.movieID;
+
+    const adminID = req.adminID;
+    if(!adminID || typeof adminID == "undefined"){
+      throw{
+        data : null,
+        message : "Only admins can add/edit movies.",
+        status : 401
+      }
+    }
+
+    if(movie.name){
+      throw {
+        data : null,
+        message: "Name is not editable.",
+        status: 400
+      };
+    }
+
+    if( !movie["99popularity"] || !movie.director || !movie.imdb_score || !movie.genre.length || Object.keys(movie).length != 4 )
+    throw {
+      data : null,
+      message: "All/Only fields(99popularity, director, imdb_score,genre) required.",
+      status: 400
+    };
+    
+    //Validate movie director
+    isDirectorValidated = validateString(movie.director , {"max" : 60, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
+    if(!isDirectorValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isDirectorValidated.message} : director`,
+        status : 400
+      }
+    }
+    //Validate imdb_score
+    isIMDBValidated = validateFloat(movie.imdb_score , {"max" : 10, "min" : 0 });
+    if(!isIMDBValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isIMDBValidated.message} : Imdb_Score`,
+        status : 400
+      }
+    }
+    //Validate movie 99popularity
+    is99PopularityValidated = validateInteger(movie["99popularity"] , {"max" : 100, "min" : 0 });
+    if(!is99PopularityValidated.isValidate){
+      throw {
+        data : null,
+        message : `${is99PopularityValidated.message} : 99popularity`,
+        status : 400
+      }
+    }
+    //Validate movie genres
+    if (Array.isArray(movie.genre)) {
+      for (let g = 0; g < movie.genre.length; g++) {
+        currGenre = movie.genre[g];
+        isGenreValidated = validateString(currGenre, { "max": 50, "min": 3, "charsNotAllowed": ['_', '@', '/', '\\', '&'] });
+        if (!isGenreValidated.isValidate) {
+          throw {
+            data : null,
+            message: `${isGenreValidated.message} : genre`,
+            status: 400
+          }
+        }
+      }
+    }
+    else{
+      throw{
+        data : null,
+        message : "Movie genres must be an array.",
+        status : 400
+      }
+    }
+
+    const db = getDb();
+    db.collection('movies').findOne({_id : mongodb.ObjectId(movieID)})
+      .then((m)=>{
+        if(!m)
+        throw {
+          data : null,
+          message: "Movie doesn't exists.",
+          status: 400
+        };
+        //Checking if the movie is made by the Admin attempting to delete
+        const movieByAdmin = m.admin._id;
+        if(movieByAdmin != adminID)
+        throw {
+          data : null,
+          message: "Movie doesn't added by Admin( " + m.admin._id + " ).",
+          status: 403
+        };
+        return m;
+      })
+      .then((m)=>{
+        console.log("Movie is",movie);
+        return db.collection('movies').updateOne({_id: mongodb.ObjectID(movieID)},{
+          '$set' : {...movie} }
+          )
+      })
+      .then((r)=>{
+        let respObj = {
+          data : null,
+          message : "Updated successfully",
+          status : 200
+        }
+        res.status(200).json(respObj);
+      })
+      .catch((err)=>{
+        console.log(err);
+        res.status(err.status).json(err);
+      })
+  }
+  catch (err) {
+    console.log(err);
+    res.status(err.status).json(err);
   }
 }
 
@@ -134,71 +312,79 @@ exports.loadAllMovies = (req,res,next) => {
   /*
 
   Req obj : {
-    searchText(Text from serach bar), //TODO: check against both movie name and director name
+    searchText(Text from serach bar),
     genres : [](all genres chosen) (if length 0 then dont apply this filter)
     sort : (field name to sort upon)(If empty don't add to aggragtion)
     size : (No. of movies to be shown at max)
     from : (skip these numebr of movies)
-    //TODO : Add pagination wala fields as well.
   }
 
   */
-  //TODO : Change thsi to a get route so that we are getting everything from 
-  //req.query
-  console.log("Query is",req.query);
+  
 
-  let {searchText, genres, sort, size, from} = req.query;
+  let {searchText, genre, sort, size, from} = req.query;
   
   //Validate all incoming fields.
   //Validate searchText
   //Validate movie name
-  isSearchTextValidated = validateString(searchText , {"charsNotAllowed" : ['_','@','/','\\','&'] });
-  if(!isSearchTextValidated.isValidate){
+  if(searchText){
+    isSearchTextValidated = validateString(searchText , {"charsNotAllowed" : ['_','@','/','\\','&'] });
+    if(!isSearchTextValidated.isValidate){
+      throw {
+        data : null,
+        message : `${isSearchTextValidated.message} : search-text.`,
+        status : 400
+      }
+    }
+  }
+  
+
+  //Validate sort
+  if(sort && sort != "director" && sort != "name" && sort!="99popularity" && sort!="imdb_score"){
     throw {
-      message : `${isSearchTextValidated.message} : search-text.`,
+      data : null,
+      message : `Sort must be director, name,imdb_score or 99popularity.`,
       status : 400
     }
   }
 
-  //TODO : Add Imdb score to sort dropdown.
-  //Validate sort
-  if(sort && (sort != "director" && sort != "name" && sort!="99popularity" && sort!="imdb_score")){
-    throw {
-      message : `Sort must be director, name or 99popularity.`,
-      status : 400
-    }
+  //Vaildate size and from//parsing int from size
+  size = parseInt(size);
+  if(!size || size < 0 || typeof size != "number"){
+    size = 10; //Default Value
   }
+  //parsing int from "from"
+  from = parseInt(from);
+  if(!from || from < 0 || typeof size != "number"){
+    from =0; //Set from to default 0
+  }
+
+  //TODO : When empty array is send to front end make sure to tell No movie found/No genre found.
 
 
   let aggregationPipeline = [];
 
-  console.log("Admin ID",req.adminID);
-
   const adminID = req.adminID ? req.adminID : null;
-
-  //TODO : Check for search and sort filter
 
   //Checking for searchText field
   if(searchText){
     aggregationPipeline.push({ $match: { $or: [ { "name": `${searchText}` }, { "director": `${searchText}` } ] } });
   }
 
-  //TODO : Later make above and this below query one only by appending to it only the filters as well
-  //Checking if we are filtering for genres
-
-  if(genres && genres.length > 0){
+  if(genre && genre.length > 0){
     let matchCriteria = {
       $and : []
     }
-    //Converting genres to an array
-    genres = genres.split(',');
-    //Validate movie genres
-    if (Array.isArray(genres)) {
-      for (let g = 0; g < genres.length; g++) {
-        currGenre = genres[g];
+    //Converting genre to an array
+    genre = genre.split(',');
+    //Validate movie genre
+    if (Array.isArray(genre)) {
+      for (let g = 0; g < genre.length; g++) {
+        currGenre = genre[g];
         isGenreValidated = validateString(currGenre, { "max": 50, "min": 3, "charsNotAllowed": ['_', '@', '/', '\\', '&'] });
         if (!isGenreValidated.isValidate) {
           throw {
+            data : null,
             message: `${isGenreValidated.message} : genre`,
             status: 400
           }
@@ -206,50 +392,31 @@ exports.loadAllMovies = (req,res,next) => {
       }
     }
 
-    let genresRegex = genres.map((genre)=>{
+    let genreRegex = genre.map((g)=>{
       return {
-        "genre" : { $regex : ` *${genre}`} //Ignoring white spaces before.
+        "genre" : { $regex : ` *${g}`} //Ignoring white spaces before genre.
       }
     })
-    aggregationPipeline.push({ $match: { $and :  genresRegex } });
+    aggregationPipeline.push({ $match: { $and :  genreRegex } });
   }
 
   //Checking if sort field is set
-  //TODO : Later try to give functionality to sort on multiple fields and also order to sort on
   if(sort){
     const sortField = `${sort}`;
-    console.log(sortField);
     aggregationPipeline.push({ $sort: { [sortField] : 1 } });
-  }
-
-
-  //parsing int from size
-  size = parseInt(size);
-  if(!size || size < 0){
-    size = 10; //Default Value
-  }
-  //parsing int from "from"
-  from = parseInt(from);
-  if(!from || from < 0){
-    from =0; //Set from to default 0
   }
 
   aggregationPipeline.push({ "$limit": size + from });
   aggregationPipeline.push({ "$skip": from })
+  console.log("aggreagtion pipleine",JSON.stringify(aggregationPipeline,null,2));
 
-  console.log(aggregationPipeline);
-
-  //TODO : Currently not making next an previous disabled but will later do.
-
-  //TODO : Check below functionality and add cursor if required
-  
+  //TODO : Currently not making next an previous disabled but will later do. 
     const db = getDb();
     db.collection('movies').aggregate(aggregationPipeline).toArray()
       .then((r) => {
         if(adminID){
           //Compare admin ID with movie.admin._id
           r = r.map((e)=>{
-            console.log("e.admin._id",e.admin._id);
             e.isModificationAllowed = e.admin._id == adminID;
             delete e.admin;
             return e;
@@ -263,16 +430,22 @@ exports.loadAllMovies = (req,res,next) => {
             return e;
           })
         }
-        res.status(200).send(r);
+        console.log("Response is",r);
+        let respObj = {
+          data : r,
+          message : null,
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err) => {
         console.log(err);
-        res.send(err);
+        res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }
 
@@ -280,47 +453,72 @@ exports.searchSuggestion = (req,res,next) => {
   
   //Add status code and other check if required here.
 
-  //TODO : Check all possiblities like search suggestion is not have search text.
-  //TODO : Add correct res catcher like create movie when I throw a error.
 
-  const body = req.params.searchText;
-  const regex = `^${body}`;
+  const searchText = req.params.searchText;
+  if(!searchText){
+    throw{
+      data : null,
+      message: "Please provide search text",
+      status: 400
+    }
+  }
+  const regex = `^${searchText}`;
   const findCriteria = { $or: [ { "name": { $regex: regex, $options : 'i'  }  }, { "director": { $regex: regex, $options: 'i' }  } ] }
-
   
-
-  //TODO : Check below functionality and add cursor if required
   try {
     const db = getDb();
-    //TODO : Change the below find to findMany or look into it.
     db.collection('movies').find(findCriteria).limit(10).toArray()
       .then((r) => {
-        res.status(200).send(r);
+        let respObj = {
+          data : r,
+          message : null,
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err) => {
         console.log(err);
-        res.send(err);
+        res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }
 
 exports.deleteMovie = (req,res,next) => {
   try {
     const movieID  = req.params.movieID;
-    // const adminID = req.admin_id;
-    //TODO : change later to be JWT token
+    if(!movieID){
+      throw{
+        data : null,
+        message: "Please provide Movie ID to be deleted.",
+        status: 400
+      }
+    }
+    if(!mongodb.ObjectID.isValid(movieID)){
+      throw{
+        data : null,
+        message: "Please provide a valid movie id.",
+        status: 400
+      }
+    }
     const adminID = req.adminID;
-
+    if(!adminID){
+      throw{
+        data : null,
+        message: "Only admins can add/edit/delete movies.",
+        status: 401
+      }
+    }
+    
     const db = getDb();
     db.collection('movies').findOne({_id : mongodb.ObjectId(movieID)})
       .then((movie)=>{
         if(!movie)
-        //TODO : Correct status message below
         throw {
+          data : null,
           message: "Movie doesn't exists.",
           status: 400
         };
@@ -328,7 +526,8 @@ exports.deleteMovie = (req,res,next) => {
         const movieByAdmin = movie.admin._id;
         if(movieByAdmin != adminID)
         throw {
-          message: "Movie doesn't added by Admin( " + movie.authorName + " ).",
+          data : null,
+          message: "Movie doesn't added by Admin( " + movie.admin._id + " ).",
           status: 403
         };
         return movie;
@@ -339,47 +538,22 @@ exports.deleteMovie = (req,res,next) => {
         })
       })
       .then((r)=>{
-        res.status(200).send("movie deleted successfully");
+        let respObj = {
+          data : null,
+          message : "Deleted successfully",
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err)=>{
         console.log(err);
-        res.status(err.message).send(err.status);
-      })
-    
-  }
-  catch (err) {
-    console.log(err);
-    res.status(err.message).send(err.status);
-  }
-}
-
-exports.updateMovie = (req,res,next) => {
-  try {
-    const {movieID, movie} = req.body;
-    const db = getDb();
-    console.log("Request Object is ",req.body);
-    //TODO : Chek for existence of movie to update and not make any changes if doesn't exist.
-
-    //TODO : Check for wether the admin created this movie is changing it and from there itself get 
-    //admin name that will also be added to movie obj.
-
-    //TODO : Check for movie name that it is not change atleast.This should be done in promise 
-    //returned from above TODO that is when we are checking for movie existence.
-    //OR add movie name as first field in below updateOne that will automatically check for 
-    //new Movie name == current movie name.
-    db.collection('movies').updateOne({_id: mongodb.ObjectID(movieID)},{
-    '$set' : {...movie} }
-    )
-      .then((r) => {
-        res.status(200).send(r);
-      })
-      .catch((err) => {
-        console.log(err);
-        res.send(err);
+        res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }
+
+

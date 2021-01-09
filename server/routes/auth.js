@@ -6,11 +6,9 @@ const authController = require('../controllers/auth');
 
 const {requireLogin} = require('../middlewares/requireLogin');
 
-router.post('/signup',authController.signUp);
+router.post('/signup',requireLogin,authController.signUp);
 
-router.post('/login',authController.signIn);
-
-router.get('/protected',requireLogin,authController.protected);
+router.post('/login',authController.logIn);
 
 
 module.exports = router;

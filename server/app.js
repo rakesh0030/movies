@@ -17,13 +17,23 @@ app.use(express.json());
 
 // app.use(cors())
 
-app.use('/auth',authRoutes);
-app.use('/movies',movieRoutes);
-app.use('/genres',genreRoutes);
+app.use('/api/auth',authRoutes);
+app.use('/api/movies',movieRoutes);
+app.use('/api/genres',genreRoutes);
+
+//404 route
+app.use((req,res,next)=>{
+  let respObj = {
+    data : null,
+    message : `${req.method} Route ${req.url} not found.`,
+    status : 404
+  }
+  res.status(404).json(respObj);
+})
 // app.use('/user/',userDetailsRoutes);
 
 // app.get('/',middleware,(req,res,next)=>{
-//   res.send("Hello word");
+//   res.json("Hello word");
 //   next();
 // })
 

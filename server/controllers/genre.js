@@ -7,13 +7,11 @@ const {validateString} = require('../utils/validator');
 exports.createGenre = (req,res,next) => {
   try {
     const {genre}  = req.body;
-    // const adminID = req.admin_id;
-    //TODO : change later to be JWT token
     const adminID = req.adminID;
     if(!genre)
     throw {
+      data : null,
       message: "All fields(genre) required.",
-      //TODO : change all status code properly.
       status: 400
     };
     //Validate all fields
@@ -22,6 +20,7 @@ exports.createGenre = (req,res,next) => {
     isNameValidated = validateString(genre , {"max" : 50, "min" : 3, "charsNotAllowed" : ['_','@','/','\\','&'] });
     if(!isNameValidated.isValidate){
       throw {
+        data : null,
         message : `${isNameValidated.message} : genre`,
         status : 400
       }
@@ -32,9 +31,9 @@ exports.createGenre = (req,res,next) => {
       .then((admin)=>{
         if(!admin)
         throw {
+          data : null,
           message: "Admin doesn't exists.",
-          //TODO : change all status code properly.
-          status: 403
+          status: 401
         };
         return admin.name;
       })
@@ -44,34 +43,43 @@ exports.createGenre = (req,res,next) => {
         })
       })
       .then((r)=>{
-        res.status(200).send("Genre added successfully");
+        let respObj = {
+          data : r.insertedId,
+          message : "Genre added successfully",
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err)=>{
         console.log(err);
-        res.status(err.message).send(err.status);
+        res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }
 
 exports.loadAllGenre = (req,res,next) => {
-  //TODO : Check below functionality and add cursor if required
   try {
     const db = getDb();
     db.collection('genres').find({}).toArray()
       .then((r) => {
-        res.status(200).send(r);
+        let respObj = {
+          data : r,
+          message : null,
+          status : 200
+        }
+        res.status(200).json(respObj);
       })
       .catch((err) => {
         console.log(err);
-        res.send(err);
+        res.status(err.status).json(err);
       })
   }
   catch (err) {
     console.log(err);
-    res.status(err.message).send(err.status);
+    res.status(err.status).json(err);
   }
 }
