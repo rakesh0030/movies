@@ -56,7 +56,7 @@ function Create_Movie(props) {
         <div className="row">
         <p class="col s12">
           <label for="imdb_score">imdb-score</label> 
-          <input type="number" id="imdb_score" min="0" max="10"
+          <input type="number" id="imdb_score" min="0.1" and max="10.0" step="0.1"
           onChange={(e)=>props.setIMDBScore(e.target.value)}
           value={props.MovieEditCreate["imdb_score"]}
           />
@@ -79,7 +79,7 @@ function Create_Movie(props) {
           //TODO : Multiple option click not working.
           //TODO: ALso while editing name , director not properly working.
           //TODO : Check the working of edit movie
-          value={props.MovieEditCreate.genre}
+          // value={props.MovieEditCreate.genre}
           >
             <option value="" disabled selected>Choose your option</option>
             {/* <option value="1">Option 1</option>
@@ -94,7 +94,7 @@ function Create_Movie(props) {
         <div className="card-action container">
         <button className={`${styles.Button} btn waves-effect waves-light #455a64 blue-grey darken-2`} type="submit" name="action"
           onClick={()=>props.createMovie()}
-          >Add Movie
+          >{props.MovieEditCreate._id ? "Edit " : "Add " } Movie
           </button>
           <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
           onClick={()=>props.OnCancelAddMovie()}

@@ -131,7 +131,15 @@ class Movies extends Component {
 
   OnCancelAddMovie = (e) =>{
     this.setState({
-      isMovieCreationScreenOpen : false
+      isMovieCreationScreenOpen : false,
+      MovieEditCreate : {
+        _id : null,
+        name : "",
+        director : "",
+        "99popularity" : 0,
+        imdb_score : 0,
+        genre : ["Drama"]
+      }
     })
   }
 
@@ -211,7 +219,7 @@ class Movies extends Component {
       return {
         MovieEditCreate : {
           ...oldState.MovieEditCreate,
-          imdb_score : parseInt(e)
+          imdb_score : e
         }
       }
     })
@@ -279,12 +287,12 @@ class Movies extends Component {
       .then((r) => {
         M.toast({ html: `Genre created successfully.`, classes: "#2e7d32 green darken-3" });
         this.setState((oldState)=>{
-          let Tags = oldState.Tags;
-          Tags.push({genreName :newGenre, _id : r.data.data});
           return{
           isGenreCreationScreenOpen : false,
-          Tags
+          from : 0
           }
+        },()=>{
+          this.onSearchBtnClicked();
         })
       })
       .catch((err) => {
@@ -663,6 +671,9 @@ class Movies extends Component {
       M.toast({html : 'Please login as admin first.', classes:"#ff1744 red accent-3"});
       return;
     }
+    if(!window.confirm("Are you sure to delete?")){
+      return;
+    }
     let options = {
       headers: {
         'Authorization':  jwt
@@ -703,17 +714,23 @@ class Movies extends Component {
     //TODO : Replace all var to let
     //TODO : Make this a method and use here.
     console.log("Movie to be edited",movie);
+    //Removing all white spaces form genre of movie that need to be edited.
+    for(let i=0;i<movie.genre.length;i++){
+        movie.genre[i] = movie.genre[i].trim();
+    }
     this.setState({
       MovieEditCreate : movie,
       isMovieCreationScreenOpen : true
     },()=>{
-      var elems = document.querySelectorAll('select');
-      var instances = M.FormSelect.init(elems);
       var multiSelect = document.getElementById("MultiSelectGenre");
+      console.log("Genre to be added",this.state.MovieEditCreate.genre)
       for (var i = 0; i < multiSelect.options.length; i++) {
         console.log("option is",(multiSelect.options[i].value));
         console.log("Movie Edit create",this.state.MovieEditCreate.genre)
-        multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
+        let currGenreValue = multiSelect.options[i].value;
+        
+        multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(currGenreValue) >= 0;
+        console.log("option selected : ",multiSelect.options[i].selected);
       }
       //multiSelect.value = this.state.MovieEditCreate.genre;
       M.updateTextFields();
@@ -796,14 +813,14 @@ class Movies extends Component {
     var instances2 = M.FormSelect.init(elems2);
     var elems = document.querySelectorAll('select');
       var instances = M.FormSelect.init(elems);
-      var multiSelect = document.getElementById("MultiSelectGenre");
-      if(multiSelect){
-      for (var i = 0; i < multiSelect.options.length; i++) {
-        console.log("option is",(multiSelect.options[i].value));
-        console.log("Movie Edit create",this.state.MovieEditCreate.genre)
-        multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
-      }
-    }
+    //   var multiSelect = document.getElementById("MultiSelectGenre");
+    //   if(multiSelect){
+    //   for (var i = 0; i < multiSelect.options.length; i++) {
+    //     console.log("option is",(multiSelect.options[i].value));
+    //     console.log("Movie Edit create",this.state.MovieEditCreate.genre)
+    //     multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
+    //   }
+    // }
       //multiSelect.value = this.state.MovieEditCreate.genre;
       M.updateTextFields();
   }
