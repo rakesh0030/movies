@@ -14,13 +14,15 @@ function Layout(props) {
   //Currently doing directly later may add react routing
   let mainContent = (
     // <div className={styles.MainContent}>
-    <div className={`${styles.MainContent}`}>
+    <div >
       <div className="row">
         <SideBar {...props}/>
         <div className="col s9">
+        <div>
         <Dropdown {...props} onOptionsClicked={props.onSortOptionClicked}/>
         <div className="col s2"></div>
         <Pagination {...props} onClickHandler={props.onPaginationBtnClicked}/>
+        </div>
         <Movie {...props}/>
         </div>
       </div>
@@ -66,8 +68,10 @@ function Layout(props) {
     <div className={styles.Layout}>
       <NavBar {...props}>
       </NavBar>
+      <div className={`${styles.MainContent}`}>
       {AddMovieGenreBtns}
       {mainContent}
+      </div>
     </div>
   );
 }

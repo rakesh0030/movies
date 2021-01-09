@@ -4,7 +4,7 @@ function Tags(props) {
   let addClickedBackground = props.addClickedBackground ? "##64dd17 light-green accent-4"  : styles.TagSelected;
   return (
 
-    <li className={`${styles.Tags} chip  ${addClickedBackground}`} style={{color:"white",fontWeight:"bold"}} 
+    <li className={`${styles.Tags} chip  ${addClickedBackground}`} style={{color:"white",fontWeight:"800"}} 
     onClick={()=>props.onGenreClicked(props.Tag)}
     
     >

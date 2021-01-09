@@ -12,5 +12,6 @@
 .TagSelected{
   background-color:#2196f3 !important;
   color: white;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  font-family: "Segoe UI";
 }

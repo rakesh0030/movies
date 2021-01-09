@@ -5,12 +5,16 @@
 } */
 
 .MainContent {
-  margin:  200px 150px 0px;
+  margin:  170px 150px 0px;
 }
 
 .MovieGenreBtns{
   display: flex;
-  position: absolute;
-  top : 15%;
-  left : 50%;
+  /* position: absolute;
+  top : 20%;
+  left : 50%; */
+  /* margin-top:150px; */
+  margin-right : 25px !important;
+  margin-bottom: 20px;
+  justify-content: flex-end;
 }
