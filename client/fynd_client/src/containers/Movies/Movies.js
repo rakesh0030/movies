@@ -8,7 +8,6 @@ import M from 'materialize-css';
 class Movies extends Component {
   state = {
     suggestion: {
-      //sitems: ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"], //Array having suggestions,
       suggestions : [],
       suggestionText: ""
     },
@@ -19,14 +18,10 @@ class Movies extends Component {
       sort : null,
       genre : [],
       searchText : "",
-      //TODO : Currently not making next an previous disabled but will later do.
+      //TODO : Provide disbale/enable to next and previous btn.
       size : 10,
       from : 0
     },
-    //TODO : now adding blank in beginning just to make sure that none is chosen by default.
-    //TODO: Later define a api for getting sortable fields.
-    //TODO: Also add later label and other tags for select.
-
     //TODO : add sortable field with a description which will be displayedd rather the
     //field name. 
     sortableFields : ["name", "director", "99popularity","imdb_score"],
@@ -66,9 +61,8 @@ class Movies extends Component {
       name : "",
       director : "",
       "99popularity" : 0,
-      //TODO : this is imdb_score not imdb change everywhere.
       imdb_score : 0,
-      genre : ["Drama"] //TODO : Remove this dummy genre,created because we need atleast one genre
+      genre : ["Drama"]
     },
     genreCreate : ""
   }
@@ -116,7 +110,6 @@ class Movies extends Component {
     let value = e.target.value;
     this.setState({
       suggestion: {
-        //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
         suggestionText: value,
         suggestions: []
       }
@@ -174,18 +167,6 @@ class Movies extends Component {
   }
 
   onMultiGenreClicked = () =>{
-    // console.log("onMultiGenreClicked value is",e);
-    // this.setState((oldState)=>{
-    //   return {
-    //     MovieEditCreate : {
-    //       ...oldState.MovieEditCreate,
-    //       genre : [...oldState.MovieEditCreate.genre,e]
-    //     }
-    //   }
-    // })
-
-    //TODO : Replace all var to let
-    //TODO : Make this a method and use here.
     var elem = document.getElementsByClassName("MultiSelectGenre");
     console.log("elem",elem);
     var instance = M.FormSelect.getInstance(elem[0]);
@@ -244,8 +225,6 @@ class Movies extends Component {
     }
     let requestObj = { ...this.state.MovieEditCreate }
     delete requestObj._id;
-    //TODO : Later change how to make sure we are editing or 
-    //creating a new movie.
     if(this.state.MovieEditCreate._id){
       return axios.put("/movies", requestObj, options)
       .then((r) => {
@@ -278,9 +257,6 @@ class Movies extends Component {
         'Authorization': localStorage.getItem("jwt")
       }
     }
-    //TODO : Check wether we are making a duplicate genre if yes then do not make
-    //TODO : On client side check using Tag comparison
-    //TODO : On server side also check
     let newGenre = this.state.genreCreate;
     let requestObj = {genre : this.state.genreCreate}
     return axios.post("/genres", requestObj, options)
@@ -301,8 +277,6 @@ class Movies extends Component {
       })
   }
 
-
-  //TODO : Rename the below method correctly
   onAddMovieGenreClicked = ()=>{
     this.setState({
       isMovieCreationScreenOpen : true
@@ -321,35 +295,24 @@ class Movies extends Component {
 
   onSearchInputChange = (e)=>{
     const value = e.target.value;
-    //TODO : Make this such that only after the user has written atleast something and paused then request goes back
-    //TODO : Add functionality of igonre case for search text.
     if(value.length == 0){
       this.setState({
         suggestion : {
-          //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
           suggestionText: value,
           suggestions : []
         }
       })
     }
     else{
-      // const regex = new RegExp(`^${value}`,"i")
-      // let suggestions = this.state.suggestion.items.sort().filter(v => regex.test(v));
       axios.get(`/movies/search/${value}`)
         .then((r)=>{
-          //TODO : Change server side logic to only recieve movie name and director name 
-          //From Backend
           const resp = r.data.data;
           console.log("Response is",resp);
           const suggArr = resp.map((m)=>{
-            //TODO : Check how to show in suggestion both name and dir name
-            //TODO: Currently taking only name.
             return `${m.name}`;
-            // return m;
           })
           this.setState({
             suggestion: {
-              //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
               suggestionText: value,
               suggestions: suggArr
             }
@@ -358,31 +321,13 @@ class Movies extends Component {
             let suggestionObj = suggestionArray.map((e,idx) => {
               return {
                 [e]: null
-                // id : idx,
-                // text : e
               }
             })
             console.log("suggestionObject is", suggestionObj)
-            // var AutoInstanceObj = M.Autocomplete.getInstance(document.getElementById('autocomplete-input'));
-            // console.log("Auto complete is", AutoInstanceObj);
-            // var instances = M.Autocomplete.init(AutoInstanceObj, {
-            //   minLength : 1
-            // });
-            // AutoInstanceObj.updateData(suggestionObj);
-            // // console.log("Auto elems is", Autoelems);
-            // // console.log("Auto instances is ", AutoInstances);
-            // console.log("Available method is", M.Autocomplete);
-            // console.log(AutoInstanceObj.isOpen)
-            // console.log(AutoInstanceObj.open());
-            // console.log(AutoInstanceObj.isOpen)
-            // //Check what is getting wrong
-            
           })
         })
         .catch((e)=>{
-          //TODO : add to all these error alerts, a Toast message instead.
           M.toast({ html: `Error in fetching suggestions ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
-          //alert("Error in fetching suggestions",e);
         })
     }
     console.log(this.state);
@@ -393,7 +338,6 @@ class Movies extends Component {
     this.setState((oldState)=>{
       return {
       suggestion : {
-        //items : ["Rakesh", "Ramesh", "Rajesh", "Deepak", "Find", "Fynd"],
         suggestionText: value,
         suggestions : []
       },
@@ -404,18 +348,10 @@ class Movies extends Component {
     }})
   }
 
-  //TODO : Sync the search Text with serach Text box in screen.
-
   onSearchBtnClicked = () =>{
-    //TODO : Later refactor the load All api request in a method and call that
-    //instead of writing it at a lot of places.
-    //TODO : Make search Text and suggestionText sync now they are differnet
     let postObj = {
       ...this.state.searchCriteria,
       searchText : this.state.suggestion.suggestionText
-      //TODO : Change the from here to 0 later since it is required 
-      //because of not made then this will cause error.
-      //TODO : Add JWT here also.
     }
     let searchCriteria = this.state.searchCriteria;
     let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
@@ -430,18 +366,13 @@ class Movies extends Component {
     }}
     axios.get(`/movies?${queryString}`,options)
       .then((r)=>{
-        //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
           MovieList : r.data.data
         })
       })
       .catch((e)=>{
-        //TODO : Display Toast for message
-
-        //TODO : Also add text for 0 movies, 0 genres, No movie found in serach text block.
         console.log("error is",e);
         M.toast({ html: `Error in getting movie list after searching ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
-        //alert("Error in getting movie list after searching",e);
       })
   }
 
@@ -463,7 +394,6 @@ class Movies extends Component {
     }
     else{
       let idx = this.state.searchCriteria.genre.indexOf(value);
-      //TODO : Check with only one value in array working of splice method.
       this.state.searchCriteria.genre.splice(idx,1);
       let genre = this.state.searchCriteria.genre;
       this.setState((oldState) => {
@@ -477,14 +407,9 @@ class Movies extends Component {
       },
       this.onSearchBtnClicked)
     }
-
-
-
-    //TODO : trigger a search with new state.
   }
 
   onSortOptionClicked = (value)=>{
-    //TODO : Check if the first i.e. "" is not the sort selected
     console.log("onSoetOptionClciked called");
     if(value.length > 0){
       this.setState((oldState) => {
@@ -502,7 +427,6 @@ class Movies extends Component {
 
   onPaginationBtnClicked = (value) =>{
     if(value == "next"){
-      //TODO : Later add condition for disable and enable next and precious btn.
       this.setState((oldState) => {
         return {
           searchCriteria: {
@@ -514,9 +438,7 @@ class Movies extends Component {
         this.onSearchBtnClicked
       )
     }
-    //Else is previous
     else{
-      //TODO : Later add condition for disable and enable next and precious btn.
       this.setState((oldState) => {
         return {
           searchCriteria: {
@@ -608,7 +530,6 @@ class Movies extends Component {
     axios.post('/auth/login',postData)
       .then((res)=>{
         M.toast({html: 'Login successful', classes:"#2e7d32 green darken-3"})
-        // alert('Login successful');
         console.log('Response is',res);
         console.log(res.data.data.token);
         localStorage.setItem("jwt",res.data.data.token);
@@ -624,8 +545,6 @@ class Movies extends Component {
       })
       .catch((err)=>{
         M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
-       // M.toast({html: `Error in login ${err}`, classes:"#ff1744 red accent-3"})
-        //alert('Error in login ',err);
       })
   }
 
@@ -643,7 +562,6 @@ class Movies extends Component {
     axios.post('/auth/signup',postData,options)
       .then((res)=>{
         M.toast({html: 'Admin added.', classes:"#2e7d32 green darken-3"})
-        // alert('signup successful');
         console.log('Response is',res);
         console.log(res.data.data.token);
         this.setState({
@@ -652,12 +570,9 @@ class Movies extends Component {
       })
       .catch((err)=>{
         M.toast({ html: `${err.response.data.message}`, classes: "#ff1744 red accent-3" })
-        //M.toast({html: `Error in signup ${err}`, classes:"#ff1744 red accent-3"})
-        //alert('Error in login ',err);
       })
   }
-
-  //TODO : May change this to something else(very less chances) when react routing is added
+  
   adminLinkBtnClickhandler = ()=>{
     console.log("admin btn clicked");
     this.setState({
@@ -679,11 +594,9 @@ class Movies extends Component {
         'Authorization':  jwt
       }
     }
-    //TODO : Check on server side the person deleting is same as created the movie.
     axios.delete(`/movies/${movieID}`,options)
       .then((r)=>{
         console.log(r)
-        //TODO : Later change this handling of movies to something else for now handling here itself
         this.setState((oldState) => {
           let idx;
           let MovieList = oldState.MovieList;
@@ -692,10 +605,6 @@ class Movies extends Component {
               idx = movieIDx;
             }
           });
-          //TODO : Later look into it what is going wrong here and check if something 
-          //can be done or is it ok.
-          //When deleting we are removing the element from array but do we have to or should we directly 
-          //call for a page refresh.
           console.log("idx is", idx);
           MovieList.splice(idx, 1);
           M.toast({ html: "movie Deleted successfully", classes: "#2e7d32 green darken-3" });
@@ -711,8 +620,6 @@ class Movies extends Component {
   }
 
   onEditSpanClickHandler = (movie)=>{
-    //TODO : Replace all var to let
-    //TODO : Make this a method and use here.
     console.log("Movie to be edited",movie);
     //Removing all white spaces form genre of movie that need to be edited.
     for(let i=0;i<movie.genre.length;i++){
@@ -732,12 +639,9 @@ class Movies extends Component {
         multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(currGenreValue) >= 0;
         console.log("option selected : ",multiSelect.options[i].selected);
       }
-      //multiSelect.value = this.state.MovieEditCreate.genre;
       M.updateTextFields();
     })
   }
-
-  //TODO: Provide logout feature for Admin.
 
   componentDidMount(){
     axios.get('/genres')
@@ -750,7 +654,6 @@ class Movies extends Component {
       .catch((e)=>{
         console.log("error is",e);
         M.toast({ html: `Error in getting tags ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
-        //alert("Error in getting Tags",e);
       })
     let searchCriteria = this.state.searchCriteria;
     let queryString = Object.keys(searchCriteria).map(key => key + '=' + (searchCriteria[key] ? searchCriteria[key] : "")).join('&');
@@ -765,21 +668,13 @@ class Movies extends Component {
     }}
     axios.get(`/movies?${queryString}`,options)
       .then((r)=>{
-        //TODO : Add pagination later and only fetch some records at one go.
         this.setState({
           MovieList : r.data.data
         })
       })
       .catch((e)=>{
-        //TODO : Display Toast for message
-
-        //TODO : Also add text for 0 movies, 0 genres, No movie found in serach text block.
         console.log("error is",e);
-        //M.toast({ html: `Error in getting movie list ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
-        // alert("Error in getting movie list",e);
       })
-
-    //Checking if jwt token is there if yes then add Log out to admin
 
     if(jwt){
       this.setState({
@@ -812,21 +707,9 @@ class Movies extends Component {
     var elems2 = document.querySelectorAll('select');
     var instances2 = M.FormSelect.init(elems2);
     var elems = document.querySelectorAll('select');
-      var instances = M.FormSelect.init(elems);
-    //   var multiSelect = document.getElementById("MultiSelectGenre");
-    //   if(multiSelect){
-    //   for (var i = 0; i < multiSelect.options.length; i++) {
-    //     console.log("option is",(multiSelect.options[i].value));
-    //     console.log("Movie Edit create",this.state.MovieEditCreate.genre)
-    //     multiSelect.options[i].selected = this.state.MovieEditCreate.genre.indexOf(multiSelect.options[i].value) >= 0;
-    //   }
-    // }
-      //multiSelect.value = this.state.MovieEditCreate.genre;
-      M.updateTextFields();
+    var instances = M.FormSelect.init(elems);
+    M.updateTextFields();
   }
-
-
-  //TODO : When ever we come from some other screen sort is not shown.
 
 
 
