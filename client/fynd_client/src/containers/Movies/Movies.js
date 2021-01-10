@@ -219,7 +219,7 @@ class Movies extends Component {
       return {
         MovieEditCreate : {
           ...oldState.MovieEditCreate,
-          imdb_score : e
+          imdb_score : parseFloat(e)
         }
       }
     })
@@ -642,7 +642,7 @@ class Movies extends Component {
     console.log("Post Data for signup",postData);
     axios.post('/auth/signup',postData,options)
       .then((res)=>{
-        M.toast({html: 'signup successful', classes:"#2e7d32 green darken-3"})
+        M.toast({html: 'Admin added.', classes:"#2e7d32 green darken-3"})
         // alert('signup successful');
         console.log('Response is',res);
         console.log(res.data.data.token);

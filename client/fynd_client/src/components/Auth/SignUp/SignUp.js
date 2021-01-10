@@ -31,7 +31,7 @@ function SignUp(props) {
         <div className="card-action center">
           <button className={`${styles.Button} btn waves-effect waves-light #455a64 blue-grey darken-2`} type="submit" name="action"
           onClick={()=>props.SignUpReq()}
-          >Sign Up
+          >Add Admin
           </button>
           <button className="btn waves-effect waves-light #455a64 blue-grey darken-2" type="submit" name="action"
           onClick={()=>props.OnCancelSignUp()}
