@@ -4,8 +4,12 @@
 } */
 
 .DeleteEdit{
-  display: inline;
-  float: right;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  width: 15%;
+  align-items: center;
+  font-size: 30px;
 }
 
 .Icon{
@@ -24,3 +28,86 @@
 .MovieItem{
   background-color: rgba(179,157,219,0.3);
 }
+
+.MovieItem{
+  background-color: #424345;
+  height: 150px;
+  width: 900px;
+  display: flex;
+  justify-content: space-around;
+}
+
+.Movie{
+  font-family: 'Potta One', cursive;
+  color: #fefeff;
+  text-decoration: bold;
+  font-size: 24px;
+  margin-left: 14px;
+}
+
+.Director{
+  font-family: 'Yusei Magic', sans-serif;
+  color: #fefeff;
+  text-decoration: bold;
+  font-size: 20px;
+  margin-left: 35px;
+}
+
+.Popularity{
+  color: #e74f4f;
+  font-size: 45px;
+  text-align: center;
+  margin-top: 20px;
+  margin-left: 15px;
+}
+
+.IMDB{
+  font-family: 'Hachi Maru Pop', cursive;
+  color: #fefeff;
+  text-decoration: bold;
+  font-size: 40px;
+  margin-left: 5px;
+}
+
+.Genre{
+  font-family: 'Yusei Magic', sans-serif;
+  color: #fefeff;
+  text-decoration: bold;
+  font-size: 20px;
+  margin-top: 10px;
+  text-decoration: bold;
+  margin-left: 15px;
+}
+
+.MovieAndDirector{
+  width: 35%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.IMDBAndGenre{
+  width : 25%;
+  /* display: flex;
+  flex-direction: column;
+  align-items: center; */
+}
+
+.PopularitySection{
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.PopularitySpan{
+  font-size : 17px;
+  color : red;
+}
+
+.IMDBSpan{
+  font-size: 17px;
+  margin-left: 10px;
+}
+
+

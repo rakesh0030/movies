@@ -15,6 +15,20 @@
   left : 50%; */
   /* margin-top:150px; */
   margin-right : 25px !important;
-  margin-bottom: 20px;
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.AllBtns{
+  display: flex;
+}
+
+.sortAndPage{
+  display: flex;
+  justify-content: space-around;
+}
+
+.TagLine{
+    font-size: 35px;
+    margin-bottom: 65px;
+    font-family: 'Dancing Script', cursive;
 }

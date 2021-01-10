@@ -18,9 +18,9 @@ function Layout(props) {
       <div className="row">
         <SideBar {...props}/>
         <div className="col s9">
-        <div>
+        <div className={styles.sortAndPage}>
         <Dropdown {...props} onOptionsClicked={props.onSortOptionClicked}/>
-        <div className="col s2"></div>
+        <div></div>
         <Pagination {...props} onClickHandler={props.onPaginationBtnClicked}/>
         </div>
         <Movie {...props}/>
@@ -51,15 +51,26 @@ function Layout(props) {
     mainContent = <Create_Genre {...props}/>
   }
 
+
+
   const jwt = localStorage.getItem("jwt");
-  let AddMovieGenreBtns = null;
+  let AddMovieGenreBtns = (
+    <div className={styles.TagLine}>
+      Figuring what to watch, search and find your's favourite...
+    </div>
+  );
   console.log("jwt in Lyout is",jwt);
   if(jwt && !props.isMovieCreationScreenOpen && !props.isGenreCreationScreenOpen && !props.isSignUpScreenOpen){
     AddMovieGenreBtns = (
-    <div className={`container ${styles.MovieGenreBtns}`}>
+    <div className={`${styles.MovieGenreBtns}`}>
+      <div className={styles.TagLine}>
+      Figuring what to watch, search and find your's favourite...
+    </div>
+    <div className={styles.AllBtns}>
     <Button {...props} onClickHandler={props.onAddMovieGenreClicked} btnText="Add Movie"></Button>
     <Button {...props} onClickHandler={props.onAddGenreGenreClicked} btnText="Add Genre"></Button>
     <Button {...props} onClickHandler={props.onAddAdminClicked} btnText="Add Admin"></Button>
+    </div>
     </div>
     )
   }

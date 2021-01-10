@@ -10,7 +10,7 @@ function Dropdown(props) {
   }
   console.log("props.onOptionsClicked ",props.onOptionsClicked);
   return (
-    <div class="input-field col s5">
+    <div class="input-field">
       <select className={`${styles.Dropdown}`} 
       onChange={(e) => props.onOptionsClicked(e.target.value)} 
       value={props.searchCriteria.sort}>

@@ -775,7 +775,7 @@ class Movies extends Component {
 
         //TODO : Also add text for 0 movies, 0 genres, No movie found in serach text block.
         console.log("error is",e);
-        M.toast({ html: `Error in getting movie list ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
+        //M.toast({ html: `Error in getting movie list ${e.response.data.message}`, classes: "#ff1744 red accent-3" })
         // alert("Error in getting movie list",e);
       })
 
